@@ -4,26 +4,24 @@ import { useRoute, useRouter } from "vue-router";
 import { useNotesStore } from "../../stores/notes";
 import type { Note } from "../../types/index";
 
-const route = useRoute<{ id: string }>();
+const route = useRoute();
 const router = useRouter();
 const notesStore = useNotesStore();
 
-const isNew = route.params.id === "new";
+const isNew = computed(() => route.params.id === "new");
+
 const note = ref<Note>({
-  id: isNew ? crypto.randomUUID() : (route.params.id as string),
+  id: isNew.value ? crypto.randomUUID() : (route.params.id as string),
   title: "",
   todos: [],
   createdAt: new Date(),
   updatedAt: new Date()
 });
 
-if (!isNew) {
+if (!isNew.value) {
   const existingNote = notesStore.notes.find((n) => n.id === route.params.id);
   if (existingNote) {
-    note.value = JSON.parse(JSON.stringify(existingNote));
-  } else {
-    console.error("Note not found with the given ID.");
-    router.push("/");
+    note.value = { ...existingNote };
   }
 }
 
@@ -33,13 +31,10 @@ const canRedo = computed(
 );
 
 function addTodo() {
-  const now = new Date();
   note.value.todos.push({
     id: crypto.randomUUID(),
     text: "",
-    completed: false,
-    createdAt: now,
-    updatedAt: now
+    completed: false
   });
 }
 
@@ -48,8 +43,7 @@ function removeTodo(index: number) {
 }
 
 function save() {
-  note.value.updatedAt = new Date(); // Обновляем дату изменения
-  if (isNew) {
+  if (isNew.value) {
     notesStore.addNote(note.value);
   } else {
     notesStore.updateNote(note.value);
@@ -70,11 +64,91 @@ function confirmDelete() {
   }
 }
 
-function undo() {
-  notesStore.undo();
-}
-
-function redo() {
-  notesStore.redo();
+function undoRedo(action: "undo" | "redo") {
+  if (action === "undo" && canUndo.value) {
+    notesStore.undo();
+  } else if (action === "redo" && canRedo.value) {
+    notesStore.redo();
+  }
 }
 </script>
+
+<template>
+  <div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+      <div class="flex justify-between items-center mb-8">
+        <div class="space-x-4">
+          <button
+            class="text-gray-600 hover:text-gray-800 disabled:opacity-50"
+            @click="undoRedo('undo')"
+            :disabled="!canUndo"
+          >
+            ↩
+          </button>
+          <button
+            @click="undoRedo('redo')"
+            class="text-gray-600 hover:text-gray-800 disabled:opacity-50"
+            :disabled="!canRedo"
+          >
+            ↪
+          </button>
+          <button
+            @click="save"
+            class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          >
+            Сохранить
+          </button>
+          <button
+            @click="cancel"
+            class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+          >
+            Сохранить
+          </button>
+          <button
+            @click="confirmDelete"
+            class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          >
+            Удалить
+          </button>
+        </div>
+      </div>
+      <input
+        v-model="note.title"
+        class="text-2xl font-bold bg-transparent border-b mb-12 border-gray-300 focus:border-blue-500 outline-none"
+        placeholder="Note Title"
+      />
+      <div class="space-y-4">
+        <div
+          v-for="(todo, index) in note.todos"
+          :key="todo.id"
+          class="flex items-center space-x-4"
+        >
+          <input
+            v-model="todo.completed"
+            class="w-5 h-5"
+            type="checkbox"
+            :disabled="!todo.text"
+          />
+          <input
+            v-model="todo.text"
+            :class="[
+              { 'line-through': todo.completed },
+              'flex-1 bg-transparent border-b border-gray-300 focus:border-blue-500 outline-none'
+            ]"
+            placeholder="Задача"
+          />
+          <button
+            @click="removeTodo(index)"
+            class="text-red-500 hover:text-red-600"
+          >
+            Удалить
+          </button>
+        </div>
+
+        <button @click="addTodo" class="text-blue-500 hover:text-blue-600">
+          Добавить задачу
+        </button>
+      </div>
+    </div>
+  </div>
+</template>

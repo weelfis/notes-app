@@ -146,7 +146,6 @@ function preventUnload(e) {
         </button>
       </div>
 
-      <!-- Кнопка добавления задачи -->
       <button
         @click="addTodo"
         class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 text-gray-600 hover:text-blue-500 transition-colors"
@@ -155,7 +154,6 @@ function preventUnload(e) {
       </button>
     </div>
 
-    <!-- История действий -->
     <div class="mt-6 flex gap-2">
       <button
         @click="undoChange"

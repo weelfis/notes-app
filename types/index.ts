@@ -1,6 +1,5 @@
-// Интерфейс для отдельной задачи
 export interface TodoItem {
-  id: string;
+  readonly id: string;
   text: string;
   completed: boolean;
   createdAt?: Date;
@@ -11,9 +10,9 @@ export interface Note {
   id: string;
   title: string;
   todos: TodoItem[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }
-// createdAt: Date;
-// updatedAt: Date;
 
 export type HistoryAction = {
   type: "ADD_NOTE" | "UPDATE_NOTE" | "DELETE_NOTE";
@@ -22,14 +21,12 @@ export type HistoryAction = {
   timestamp: Date;
 };
 
-// Интерфейс для состояния хранилища
 export interface NotesState {
   notes: Note[];
   history: HistoryAction[];
   currentIndex: number;
 }
 
-// Перечисление для типов уведомлений
 export enum NotificationType {
   SUCCESS = "success",
   ERROR = "error",
@@ -37,7 +34,6 @@ export enum NotificationType {
   INFO = "info"
 }
 
-// Интерфейс для уведомлений
 export interface Notification {
   id: string;
   type: NotificationType;
@@ -45,12 +41,10 @@ export interface Notification {
   timeout?: number;
 }
 
-// Тип для параметров роута
 export type NoteRouteParams = {
   id: string;
 };
 
-// Интерфейс для ответа API
 export interface ApiResponse<T> {
   data?: T;
   error?: string;

@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type { Note, TodoItem, NotesState, HistoryAction } from "../types";
+import type { Note, NotesState, HistoryAction } from "../types";
 
 export const useNotesStore = defineStore("notes", {
   state: (): NotesState => ({
