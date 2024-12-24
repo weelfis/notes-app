@@ -19,7 +19,7 @@ const displayedTodos = computed(() => props.note.todos.slice(0, 3));
   >
     <div class="flex justify-between items-start mb-4">
       <h2 class="text-xl font-semibold">{{ note.title }}</h2>
-      <div class="flex space-x-2">
+      <div class="flex space-x-2 min-h-180">
         <NuxtLink
           :to="`/notes/${note.id}`"
           class="text-blue-500 hover:text-blue-600"

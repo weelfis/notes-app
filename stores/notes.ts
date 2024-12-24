@@ -15,6 +15,9 @@ export const useNotesStore = defineStore("notes", {
         if (stored) {
           this.notes = JSON.parse(stored);
         }
+        // Очищаем историю при инициализации
+        this.history = [];
+        this.currentIndex = -1;
       }
     },
 
@@ -25,15 +28,16 @@ export const useNotesStore = defineStore("notes", {
     },
 
     addNote(note: Note) {
-      this.notes.push({
+      const newNote = {
         ...note,
         createdAt: new Date(),
         updatedAt: new Date()
-      });
+      };
+      this.notes.push(newNote);
       this.saveToStorage();
       this.addToHistory({
         type: "ADD_NOTE",
-        note,
+        note: newNote,
         timestamp: new Date()
       });
     },
@@ -42,14 +46,15 @@ export const useNotesStore = defineStore("notes", {
       const index = this.notes.findIndex((n) => n.id === note.id);
       if (index !== -1) {
         const previousNote = { ...this.notes[index] };
-        this.notes[index] = {
+        const updatedNote = {
           ...note,
           updatedAt: new Date()
         };
+        this.notes[index] = updatedNote;
         this.saveToStorage();
         this.addToHistory({
           type: "UPDATE_NOTE",
-          note,
+          note: updatedNote,
           previousNote,
           timestamp: new Date()
         });
@@ -59,7 +64,7 @@ export const useNotesStore = defineStore("notes", {
     deleteNote(id: string) {
       const index = this.notes.findIndex((n) => n.id === id);
       if (index !== -1) {
-        const deletedNote = this.notes[index];
+        const deletedNote = { ...this.notes[index] };
         this.notes.splice(index, 1);
         this.saveToStorage();
         this.addToHistory({
@@ -71,32 +76,43 @@ export const useNotesStore = defineStore("notes", {
     },
 
     addToHistory(action: HistoryAction) {
-      this.currentIndex++;
-      this.history = this.history.slice(0, this.currentIndex);
+      // Удаляем все действия после текущего индекса
+      if (this.currentIndex < this.history.length - 1) {
+        this.history = this.history.slice(0, this.currentIndex + 1);
+      }
       this.history.push(action);
+      this.currentIndex = this.history.length - 1;
     },
 
     undo() {
       if (this.currentIndex >= 0) {
         const action = this.history[this.currentIndex];
+
         switch (action.type) {
-          case "ADD_NOTE":
-            this.notes = this.notes.filter((n) => n.id !== action.note.id);
+          case "ADD_NOTE": {
+            const index = this.notes.findIndex((n) => n.id === action.note.id);
+            if (index !== -1) {
+              this.notes.splice(index, 1);
+            }
             break;
-          case "UPDATE_NOTE":
+          }
+          case "UPDATE_NOTE": {
             if (action.previousNote) {
               const index = this.notes.findIndex(
                 (n) => n.id === action.note.id
               );
               if (index !== -1) {
-                this.notes[index] = action.previousNote;
+                this.notes[index] = { ...action.previousNote };
               }
             }
             break;
-          case "DELETE_NOTE":
-            this.notes.push(action.note);
+          }
+          case "DELETE_NOTE": {
+            this.notes.push({ ...action.note });
             break;
+          }
         }
+
         this.currentIndex--;
         this.saveToStorage();
       }
@@ -106,20 +122,28 @@ export const useNotesStore = defineStore("notes", {
       if (this.currentIndex < this.history.length - 1) {
         this.currentIndex++;
         const action = this.history[this.currentIndex];
+
         switch (action.type) {
-          case "ADD_NOTE":
-            this.notes.push(action.note);
+          case "ADD_NOTE": {
+            this.notes.push({ ...action.note });
             break;
-          case "UPDATE_NOTE":
+          }
+          case "UPDATE_NOTE": {
             const index = this.notes.findIndex((n) => n.id === action.note.id);
             if (index !== -1) {
-              this.notes[index] = action.note;
+              this.notes[index] = { ...action.note };
             }
             break;
-          case "DELETE_NOTE":
-            this.notes = this.notes.filter((n) => n.id !== action.note.id);
+          }
+          case "DELETE_NOTE": {
+            const index = this.notes.findIndex((n) => n.id === action.note.id);
+            if (index !== -1) {
+              this.notes.splice(index, 1);
+            }
             break;
+          }
         }
+
         this.saveToStorage();
       }
     }

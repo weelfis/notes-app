@@ -8,6 +8,9 @@ const route = useRoute();
 const router = useRouter();
 const notesStore = useNotesStore();
 
+const showDeleteDialog = ref(false);
+const showCancelDialog = ref(false);
+
 const isNew = computed(() => route.params.id === "new");
 
 const note = ref<Note>({
@@ -52,16 +55,20 @@ function save() {
 }
 
 function cancel() {
-  if (confirm("Are you sure you want to cancel? All changes will be lost.")) {
-    router.push("/");
-  }
+  showCancelDialog.value = true;
+}
+
+function handleCancelConfirm() {
+  router.push("/");
 }
 
 function confirmDelete() {
-  if (confirm("Are you sure you want to delete this note?")) {
-    notesStore.deleteNote(note.value.id);
-    router.push("/");
-  }
+  showDeleteDialog.value = true;
+}
+
+function handleDeleteConfirm() {
+  notesStore.deleteNote(note.value.id);
+  router.push("/");
 }
 
 function undoRedo(action: "undo" | "redo") {
@@ -102,9 +109,10 @@ function undoRedo(action: "undo" | "redo") {
             @click="cancel"
             class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
           >
-            Сохранить
+            Отмена
           </button>
           <button
+            v-if="!isNew"
             @click="confirmDelete"
             class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
           >
@@ -150,5 +158,19 @@ function undoRedo(action: "undo" | "redo") {
         </button>
       </div>
     </div>
+
+    <ConfirmDialog
+      v-model="showDeleteDialog"
+      title="Удаление заметки"
+      message="Вы уверены, что хотите удалить эту заметку? Это действие нельзя отменить."
+      @confirm="handleDeleteConfirm"
+    />
+
+    <ConfirmDialog
+      v-model="showCancelDialog"
+      title="Отмена изменений"
+      message="Вы уверены, что хотите отменить? Все несохраненные изменения будут потеряны."
+      @confirm="handleCancelConfirm"
+    />
   </div>
 </template>

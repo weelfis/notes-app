@@ -1,18 +1,26 @@
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useNotesStore } from "../composables/useNotes";
 import type { Note } from "../types";
 
 const notesStore = useNotesStore();
 const notes = computed(() => notesStore.notes);
+const showConfirmDialog = ref(false);
+const noteToDelete = ref<Note | null>(null);
 
 onMounted(() => {
   notesStore.initializeFromStorage();
 });
 
 function confirmDelete(note: Note) {
-  if (confirm("Are you sure you want to delete this note?")) {
-    notesStore.deleteNote(note.id);
+  noteToDelete.value = note;
+  showConfirmDialog.value = true;
+}
+
+function handleConfirmDelete() {
+  if (noteToDelete.value) {
+    notesStore.deleteNote(noteToDelete.value.id);
+    noteToDelete.value = null;
   }
 }
 </script>
@@ -33,7 +41,7 @@ function confirmDelete(note: Note) {
       <div
         v-for="note in notes"
         :key="note.id"
-        class="bg-white rounded-lg shadow-md p-6"
+        class="bg-white rounded-lg shadow-md p-6 min-h-180"
       >
         <div class="flex justify-between items-start mb-4">
           <h2 class="text-xl font-semibold">{{ note.title }}</h2>
@@ -73,5 +81,12 @@ function confirmDelete(note: Note) {
         </div>
       </div>
     </div>
+
+    <ConfirmDialog
+      v-model="showConfirmDialog"
+      title="Delete Note"
+      message="Are you sure you want to delete this note? This action cannot be undone."
+      @confirm="handleConfirmDelete"
+    />
   </div>
 </template>
