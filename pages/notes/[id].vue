@@ -2,7 +2,7 @@
 import { ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useNotesStore } from "../../stores/notes";
-import type { Note } from "../../types/index";
+import type { Note, IButton } from "../../types/index";
 
 const route = useRoute();
 const router = useRouter();
@@ -32,6 +32,36 @@ const canUndo = computed(() => notesStore.currentIndex >= 0);
 const canRedo = computed(
   () => notesStore.currentIndex < notesStore.history.length - 1
 );
+
+const buttons: IButton[] = [
+  {
+    label: "↩",
+    action: () => undoRedo("undo"),
+    class: "text-gray-600 hover:text-gray-800 disabled:opacity-50",
+    disabled: !canUndo.value
+  },
+  {
+    label: "↪",
+    action: () => undoRedo("redo"),
+    class: "text-gray-600 hover:text-gray-800 disabled:opacity-50",
+    disabled: !canRedo.value
+  },
+  {
+    label: "Сохранить",
+    action: save,
+    class: "bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600",
+    disabled:
+      note.value &&
+      Array.isArray(note.value.todos) &&
+      note.value.todos.length > 0
+  },
+  {
+    label: "Отмена",
+    action: cancel,
+    class: "bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600",
+    disabled: false
+  }
+];
 
 function addTodo() {
   note.value.todos.push({
@@ -86,33 +116,16 @@ function undoRedo(action: "undo" | "redo") {
       <div class="flex justify-between items-center mb-8">
         <div class="space-x-4">
           <button
-            class="text-gray-600 hover:text-gray-800 disabled:opacity-50"
-            @click="undoRedo('undo')"
-            :disabled="!canUndo"
+            v-for="(button, index) in buttons"
+            :key="index"
+            :class="button.class"
+            @click="button.action"
+            :disabled="button.disabled"
           >
-            ↩
+            {{ button.label }}
           </button>
           <button
-            @click="undoRedo('redo')"
-            class="text-gray-600 hover:text-gray-800 disabled:opacity-50"
-            :disabled="!canRedo"
-          >
-            ↪
-          </button>
-          <button
-            @click="save"
-            class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-          >
-            Сохранить
-          </button>
-          <button
-            @click="cancel"
-            class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-          >
-            Отмена
-          </button>
-          <button
-            v-if="!isNew"
+            v-show="!isNew"
             @click="confirmDelete"
             class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
           >
@@ -122,8 +135,9 @@ function undoRedo(action: "undo" | "redo") {
       </div>
       <input
         v-model="note.title"
-        class="text-2xl font-bold bg-transparent border-b mb-12 border-gray-300 focus:border-blue-500 outline-none"
-        placeholder="Note Title"
+        class="border rounded p-2 w-full"
+        :class="{ 'border-red-500': hasError }"
+        placeholder="Note title"
       />
       <div class="space-y-4">
         <div

@@ -4,6 +4,8 @@ export interface TodoItem {
   completed: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+  maxLength?: number;
+  priority?: "low" | "medium" | "high";
 }
 
 export interface Note {
@@ -18,8 +20,7 @@ export interface IButton {
   label: string;
   action: () => void;
   class: string;
-  disabled?: boolean | (() => boolean);
-  show?: boolean;
+  disabled: boolean;
 }
 
 export type HistoryAction = {
@@ -27,6 +28,8 @@ export type HistoryAction = {
   note: Note;
   previousNote?: Note;
   timestamp: Date;
+  userId?: string;
+  metadata?: Record<string, unknown>;
 };
 
 export interface NotesState {
@@ -47,6 +50,10 @@ export interface Notification {
   type: NotificationType;
   message: string;
   timeout?: number;
+}
+
+export interface NotificationsState {
+  notifications: Notification[];
 }
 
 export type NoteRouteParams = {

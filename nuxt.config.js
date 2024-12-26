@@ -10,5 +10,16 @@ export default defineNuxtConfig({
     }
   },
 
+  runtimeConfig: {
+    apiSecret: "",
+
+    public: {
+      maxNotesPerUser: 100,
+      maxTodosPerNote: 50,
+      historyLimit: 50,
+      apiBase: ""
+    }
+  },
+
   compatibilityDate: "2024-12-20"
 });

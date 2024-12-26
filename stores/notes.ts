@@ -1,4 +1,7 @@
 import { defineStore } from "pinia";
+import { NotificationType } from "../types";
+import { useNotificationsStore } from "./useNotificationsStore";
+
 import type { Note, NotesState, HistoryAction } from "../types";
 
 export const useNotesStore = defineStore("notes", {
@@ -11,33 +14,69 @@ export const useNotesStore = defineStore("notes", {
   actions: {
     initializeFromStorage() {
       if (process.client) {
-        const stored = localStorage.getItem("notes");
-        if (stored) {
-          this.notes = JSON.parse(stored);
+        try {
+          const stored = localStorage.getItem("notes");
+          if (stored) {
+            this.notes = JSON.parse(stored);
+          }
+          this.history = [];
+          this.currentIndex = -1;
+        } catch (error) {
+          const notifications = useNotificationsStore();
+          notifications.add({
+            type: NotificationType.ERROR,
+            message: "Failed to load notes from storage",
+            timeout: 5000
+          });
         }
-        this.history = [];
-        this.currentIndex = -1;
       }
     },
 
     saveToStorage() {
       if (process.client) {
-        localStorage.setItem("notes", JSON.stringify(this.notes));
+        try {
+          localStorage.setItem("notes", JSON.stringify(this.notes));
+        } catch (error) {
+          const notifications = useNotificationsStore();
+          notifications.add({
+            type: NotificationType.ERROR,
+            message: "Failed to save notes to storage",
+            timeout: 5000
+          });
+        }
       }
     },
 
     addNote(note: Note) {
+      const notifications = useNotificationsStore();
+
+      if (!note.title.trim()) {
+        notifications.add({
+          type: NotificationType.ERROR,
+          message: "Note title is required",
+          timeout: 3000
+        });
+        return;
+      }
+
       const newNote = {
         ...note,
         createdAt: new Date(),
         updatedAt: new Date()
       };
+
       this.notes.push(newNote);
       this.saveToStorage();
       this.addToHistory({
         type: "ADD_NOTE",
         note: newNote,
         timestamp: new Date()
+      });
+
+      notifications.add({
+        type: NotificationType.SUCCESS,
+        message: "Note added successfully",
+        timeout: 3000
       });
     },
 
@@ -61,6 +100,7 @@ export const useNotesStore = defineStore("notes", {
     },
 
     deleteNote(id: string) {
+      const notifications = useNotificationsStore();
       const index = this.notes.findIndex((n) => n.id === id);
       if (index !== -1) {
         const deletedNote = { ...this.notes[index] };
@@ -70,6 +110,12 @@ export const useNotesStore = defineStore("notes", {
           type: "DELETE_NOTE",
           note: deletedNote,
           timestamp: new Date()
+        });
+
+        notifications.add({
+          type: NotificationType.SUCCESS,
+          message: "Note deleted successfully",
+          timeout: 3000
         });
       }
     },
