@@ -27,6 +27,9 @@ export default {
       minHeight: {
         180: "180px"
       },
+      minWidth: {
+        320: "320px"
+      },
       spacing: {
         128: "32rem",
         144: "36rem"

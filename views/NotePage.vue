@@ -130,7 +130,7 @@ function preventUnload(e) {
         <input
           type="checkbox"
           v-model="todo.completed"
-          class="w-5 h-5 rounded border-gray-300 focus:ring-blue-500"
+          class="w-5 h-5 rounded border-gray-300 focus:ring-blue-500 bg-green-500"
         />
         <input
           v-model="todo.text"

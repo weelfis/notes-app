@@ -14,6 +14,14 @@ export interface Note {
   updatedAt?: Date;
 }
 
+export interface IButton {
+  label: string;
+  action: () => void;
+  class: string;
+  disabled?: boolean | (() => boolean);
+  show?: boolean;
+}
+
 export type HistoryAction = {
   type: "ADD_NOTE" | "UPDATE_NOTE" | "DELETE_NOTE";
   note: Note;

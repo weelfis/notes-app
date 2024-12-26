@@ -15,7 +15,6 @@ export const useNotesStore = defineStore("notes", {
         if (stored) {
           this.notes = JSON.parse(stored);
         }
-        // Очищаем историю при инициализации
         this.history = [];
         this.currentIndex = -1;
       }
@@ -76,7 +75,6 @@ export const useNotesStore = defineStore("notes", {
     },
 
     addToHistory(action: HistoryAction) {
-      // Удаляем все действия после текущего индекса
       if (this.currentIndex < this.history.length - 1) {
         this.history = this.history.slice(0, this.currentIndex + 1);
       }
