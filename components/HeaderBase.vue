@@ -1,3 +1,21 @@
+<script setup lang="ts">
+const links = [
+  {
+    to: "/",
+    text: "Все заметки",
+    class: "text-gray-600 hover:text-blue-600 transition-colors",
+    activeClass: "text-blue-600"
+  },
+  {
+    to: "/notes/new",
+    text: "Новая заметка",
+    class:
+      "bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors",
+    activeClass: ""
+  }
+];
+</script>
+
 <template>
   <header class="bg-white shadow-sm">
     <div class="container mx-auto px-4">
@@ -10,17 +28,13 @@
         </NuxtLink>
         <div class="flex items-center space-x-4">
           <NuxtLink
-            to="/"
-            class="text-gray-600 hover:text-blue-600 transition-colors"
-            active-class="text-blue-600"
+            v-for="link in links"
+            :key="link.to"
+            :to="link.to"
+            :class="link.class"
+            :active-class="link.activeClass"
           >
-            All Notes
-          </NuxtLink>
-          <NuxtLink
-            to="/notes/new"
-            class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
-          >
-            New Note
+            {{ link.text }}
           </NuxtLink>
         </div>
       </nav>

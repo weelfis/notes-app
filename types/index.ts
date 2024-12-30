@@ -8,6 +8,13 @@ export interface TodoItem {
   priority?: "low" | "medium" | "high";
 }
 
+export interface UseTodoItemsProps {
+  todos: TodoItem[];
+  onUpdateTodos: (todos: TodoItem[]) => void;
+  onAdd?: () => void;
+  onRemove?: (index: number) => void;
+}
+
 export interface Note {
   id: string;
   title: string;
@@ -64,4 +71,16 @@ export interface ApiResponse<T> {
   data?: T;
   error?: string;
   status: number;
+}
+
+export interface ConfirmDialogButton {
+  text: string;
+  class: string;
+  onClick: () => void;
+}
+
+export interface UseConfirmDialogProps {
+  modelValue: boolean;
+  onUpdateModelValue: (value: boolean) => void;
+  onConfirm: () => void;
 }

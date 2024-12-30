@@ -1,19 +1,23 @@
 <script setup lang="ts">
-defineProps<{
+import { useConfirmDialog } from "../composables/useNoteEditor";
+
+interface Props {
   modelValue: boolean;
   title: string;
   message: string;
-}>();
+}
 
+const props = defineProps<Props>();
 const emit = defineEmits<{
   "update:modelValue": [value: boolean];
   confirm: [];
 }>();
 
-function confirm() {
-  emit("confirm");
-  emit("update:modelValue", false);
-}
+const { buttons } = useConfirmDialog({
+  modelValue: props.modelValue,
+  onUpdateModelValue: (value) => emit("update:modelValue", value),
+  onConfirm: () => emit("confirm")
+});
 </script>
 
 <template>
@@ -26,16 +30,12 @@ function confirm() {
       <p class="text-gray-600 mb-6">{{ message }}</p>
       <div class="flex justify-end space-x-4">
         <button
-          @click="$emit('update:modelValue', false)"
-          class="px-4 py-2 text-gray-600 hover:text-gray-800"
+          v-for="(button, index) in buttons"
+          :key="index"
+          :class="button.class"
+          @click="button.onClick"
         >
-          Cancel
-        </button>
-        <button
-          @click="confirm"
-          class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-        >
-          Confirm
+          {{ button.text }}
         </button>
       </div>
     </div>

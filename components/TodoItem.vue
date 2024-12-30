@@ -1,39 +1,62 @@
 <script setup lang="ts">
+import { useTodoItems } from "../composables/useNoteEditor";
 import type { TodoItem } from "../types/index";
 
-defineProps<{
-  todo: TodoItem;
-  readonly?: boolean;
+interface Props {
+  todos: TodoItem[];
+}
+
+const props = defineProps<Props>();
+const emit = defineEmits<{
+  "update:todos": [todos: TodoItem[]];
+  add: [];
+  remove: [index: number];
 }>();
 
-defineEmits<{
-  remove: [];
-}>();
+const { todos, addTodo, removeTodo, updateTodo } = useTodoItems({
+  todos: props.todos,
+  onUpdateTodos: (newTodos) => emit("update:todos", newTodos),
+  onAdd: () => emit("add"),
+  onRemove: (index) => emit("remove", index)
+});
 </script>
 
 <template>
-  <div class="flex items-center space-x-4">
-    <input
-      type="checkbox"
-      v-model="todo.completed"
-      class="w-5 h-5"
-      :disabled="readonly"
-    />
-    <input
-      v-if="!readonly"
-      v-model="todo.text"
-      class="flex-1 bg-transparent border-b border-gray-300 focus:border-blue-500 outline-none"
-      placeholder="Todo item"
-    />
-    <span v-else :class="{ 'line-through': todo.completed }">
-      {{ todo.text }}
-    </span>
-    <button
-      v-if="!readonly"
-      @click="$emit('remove')"
-      class="text-red-500 hover:text-red-600"
+  <div class="space-y-4">
+    <div
+      v-for="(todo, index) in todos"
+      :key="todo.id"
+      class="flex items-center space-x-4"
     >
-      Remove
+      <input
+        :checked="todo.completed"
+        @change="updateTodo(index, { completed: !todo.completed })"
+        class="w-5 h-5 cursor-pointer"
+        type="checkbox"
+        :disabled="!todo.text.trim()"
+      />
+      <input
+        :value="todo.text"
+        @input="
+          updateTodo(index, { text: ($event.target as HTMLInputElement).value })
+        "
+        :class="[
+          'flex-1 bg-transparent border-b border-gray-300 focus:border-blue-500 outline-none',
+          { 'line-through text-gray-500': todo.completed }
+        ]"
+        placeholder="Задача"
+      />
+      <button
+        class="text-red-500 hover:text-red-600"
+        @click="removeTodo(index)"
+        aria-label="Удалить задачу"
+      >
+        Удалить
+      </button>
+    </div>
+
+    <button class="text-blue-500 hover:text-blue-600" @click="addTodo">
+      Добавить задачу
     </button>
   </div>
 </template>
