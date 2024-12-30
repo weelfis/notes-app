@@ -1,46 +1,36 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
-import { useNotesStore } from "../composables/useNotes";
-import NotesHeader from "../components/NotesHeader.vue";
+import { onMounted } from "vue";
 import NoteCard from "../components/NoteCard.vue";
+import { useNotesList } from "../composables/useNoteEditor";
 
-import type { Note } from "../types";
-
-const notesStore = useNotesStore();
-const notes = computed(() => notesStore.notes);
-const showConfirmDialog = ref(false);
-const noteToDelete = ref<Note | null>(null);
+const {
+  notes,
+  showConfirmDialog,
+  confirmDelete,
+  handleConfirmDelete,
+  initializeNotes
+} = useNotesList();
 
 onMounted(() => {
-  notesStore.initializeFromStorage();
+  initializeNotes();
 });
-
-function confirmDelete(note: Note) {
-  noteToDelete.value = note;
-  showConfirmDialog.value = true;
-}
-
-function handleConfirmDelete() {
-  if (noteToDelete.value) {
-    notesStore.deleteNote(noteToDelete.value.id);
-    noteToDelete.value = null;
-  }
-}
 </script>
 
 <template>
   <div class="container mx-auto px-4 py-8">
-    <NotesHeader class="mb-8" />
-    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-for="note in notes">
-        <NoteCard :note="note" @confirmDelete="confirmDelete" />
-      </div>
-    </section>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
+      <NoteCard
+        v-for="note in notes"
+        :key="note.id"
+        :note="note"
+        @delete="confirmDelete"
+      />
+    </div>
 
     <ConfirmDialog
       v-model="showConfirmDialog"
-      title="Delete Note"
-      message="Are you sure you want to delete this note? This action cannot be undone."
+      title="Удаление заметки"
+      message="Вы уверены, что хотите удалить эту заметку? Это действие нельзя отменить."
       @confirm="handleConfirmDelete"
     />
   </div>

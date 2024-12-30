@@ -1,6 +1,7 @@
 import { ref, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useNotesStore } from "../stores/notes";
+
 import type {
   Note,
   TodoItem,
@@ -8,6 +9,38 @@ import type {
   ConfirmDialogButton,
   UseConfirmDialogProps
 } from "../types/index";
+
+export function useNotesList() {
+  const notesStore = useNotesStore();
+  const notes = computed(() => notesStore.notes);
+  const showConfirmDialog = ref(false);
+  const noteToDelete = ref<Note | null>(null);
+
+  function confirmDelete(note: Note) {
+    noteToDelete.value = note;
+    showConfirmDialog.value = true;
+  }
+
+  function handleConfirmDelete() {
+    if (noteToDelete.value) {
+      notesStore.deleteNote(noteToDelete.value.id);
+      noteToDelete.value = null;
+    }
+  }
+
+  function initializeNotes() {
+    notesStore.initializeFromStorage();
+  }
+
+  return {
+    notes,
+    showConfirmDialog,
+    noteToDelete,
+    confirmDelete,
+    handleConfirmDelete,
+    initializeNotes
+  };
+}
 
 export function useNoteEditor() {
   const route = useRoute();
@@ -118,7 +151,7 @@ export function useNoteEditor() {
     {
       label: "Сохранить",
       action: save,
-      class: "bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600",
+      class: "bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600",
       disabled: false
     },
     {

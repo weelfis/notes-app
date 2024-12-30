@@ -12,9 +12,3 @@ import FooterBase from "../components/FooterBase.vue";
     <FooterBase />
   </div>
 </template>
-
-<style scoped>
-.router-link-active {
-  @apply text-blue-600;
-}
-</style>
