@@ -43,6 +43,7 @@ export interface NotesState {
   notes: Note[];
   history: HistoryAction[];
   currentIndex: number;
+  isNewNoteRoute: boolean;
 }
 
 export enum NotificationType {
@@ -52,15 +53,43 @@ export enum NotificationType {
   INFO = "info"
 }
 
+export type NotificationPayload = Omit<Notification, "id">;
+
 export interface Notification {
   id: string;
   type: NotificationType;
   message: string;
   timeout?: number;
+  title?: string;
+  actions?: {
+    label: string;
+    onClick: () => void;
+  }[];
 }
+
+export interface NotificationConfig {
+  position?: "top-right" | "top-left" | "bottom-right" | "bottom-left";
+  defaultTimeout?: number;
+  maxNotifications?: number;
+}
+
+export interface NotificationStore {
+  add: (notification: NotificationPayload) => void;
+  remove: (id: string) => void;
+  clear: () => void;
+  config?: NotificationConfig;
+}
+
+export type NotificationAction = {
+  type: "ADD_NOTIFICATION" | "REMOVE_NOTIFICATION" | "CLEAR_NOTIFICATIONS";
+  payload?: Notification | string;
+  timestamp: Date;
+};
 
 export interface NotificationsState {
   notifications: Notification[];
+  config?: NotificationConfig;
+  history?: NotificationAction[];
 }
 
 export type NoteRouteParams = {

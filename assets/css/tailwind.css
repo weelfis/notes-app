@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .note-h {
+    height: 190px;
+    min-height: 190px;
+    max-height: 190px;
+  }
+}

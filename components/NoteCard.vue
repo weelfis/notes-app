@@ -18,8 +18,8 @@ function confirmDelete() {
 </script>
 
 <template>
-  <div class="bg-white rounded-lg shadow-md p-6">
-    <div class="flex justify-between items-start mb-4">
+  <div class="bg-white rounded-lg shadow-md p-6 note-h">
+    <div class="flex justify-between items-start mb-2">
       <h2 class="text-xl font-semibold truncate">{{ note.title }}</h2>
       <div class="flex space-x-2">
         <NuxtLink

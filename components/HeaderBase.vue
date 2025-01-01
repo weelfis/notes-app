@@ -1,19 +1,29 @@
 <script setup lang="ts">
-const links = [
-  {
-    to: "/",
-    text: "Все заметки",
-    class: "text-gray-600 hover:text-blue-600 transition-colors",
-    activeClass: "text-blue-600"
-  },
-  {
+import { useNotesStore } from "../stores/notes";
+import { useRoute } from "vue-router";
+import { computed } from "vue";
+
+const notesStore = useNotesStore();
+const route = useRoute();
+
+const currentLink = computed(() => {
+  if (route.path === "/notes/new") {
+    return {
+      to: "/",
+      text: `Все заметки (${notesStore.totalNotes})`,
+      class: "text-gray-600 hover:text-blue-600 transition-colors",
+      activeClass: "text-blue-600"
+    };
+  }
+
+  return {
     to: "/notes/new",
     text: "Новая заметка",
     class:
       "bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors",
     activeClass: ""
-  }
-];
+  };
+});
 </script>
 
 <template>
@@ -26,15 +36,13 @@ const links = [
         >
           Notes App
         </NuxtLink>
-        <div class="flex items-center space-x-4">
+        <div v-if="notesStore.totalNotes" class="flex items-center space-x-4">
           <NuxtLink
-            v-for="link in links"
-            :key="link.to"
-            :to="link.to"
-            :class="link.class"
-            :active-class="link.activeClass"
+            :to="currentLink.to"
+            :class="currentLink.class"
+            :active-class="currentLink.activeClass"
           >
-            {{ link.text }}
+            {{ currentLink.text }}
           </NuxtLink>
         </div>
       </nav>

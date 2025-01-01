@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useConfirmDialog } from "../composables/useNoteEditor";
+import { useConfirmDialog } from "../use/useNotesHelper";
 
 interface Props {
   modelValue: boolean;

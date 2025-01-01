@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { useNoteEditor } from "../../composables/useNoteEditor";
+import { useNoteEditor } from "../../use/useNotesHelper";
+import { useRouteWatcher } from "../../use/useRouteWatcher";
 import TodoItem from "../../components/TodoItem.vue";
 import Toolbar from "../../components/Toolbar.vue";
 
@@ -14,8 +15,11 @@ const {
   handleDeleteConfirm
 } = useNoteEditor();
 
+const { updateRouteState } = useRouteWatcher();
+
 onMounted(() => {
   loadExistingNote();
+  updateRouteState();
 });
 </script>
 
@@ -30,9 +34,9 @@ onMounted(() => {
       <input
         v-model="note.title"
         class="text-2xl font-bold bg-transparent border-b mb-12 border-gray-300 focus:border-blue-500 outline-none"
-        placeholder="Note Title"
+        placeholder="Заголовок"
       />
-      <TodoItem v-model:todos="note.todos" />
+      <TodoItem :todos="note.todos" @update:todos="note.todos = $event" />
     </div>
 
     <ConfirmDialog

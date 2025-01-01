@@ -1,13 +1,17 @@
 import { ref, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useNotesStore } from "../stores/notes";
+import { useNotificationsStore } from "../stores/useNotificationsStore";
 
+import { NotificationType } from "../types/index";
 import type {
   Note,
   TodoItem,
   UseTodoItemsProps,
   ConfirmDialogButton,
-  UseConfirmDialogProps
+  UseConfirmDialogProps,
+  IButton,
+  NotificationPayload
 } from "../types/index";
 
 export function useNotesList() {
@@ -46,6 +50,7 @@ export function useNoteEditor() {
   const route = useRoute();
   const router = useRouter();
   const notesStore = useNotesStore();
+  const notificationsStore = useNotificationsStore();
 
   const DEFAULT_NOTE: Note = {
     id: "",
@@ -70,52 +75,133 @@ export function useNoteEditor() {
   const showDeleteDialog = ref(false);
   const showCancelDialog = ref(false);
 
+  const createNotification = (
+    type: NotificationType,
+    message: string
+  ): NotificationPayload => ({
+    type,
+    message,
+    timeout: 3000
+  });
+
   function loadExistingNote() {
     if (!isNew.value) {
       const existingNote = notesStore.notes.find(
         (n) => n.id === route.params.id
       );
       if (existingNote) {
-        note.value = { ...existingNote };
+        note.value = {
+          ...existingNote,
+          todos: existingNote.todos.map((todo) => ({
+            ...todo,
+            updatedAt: todo.updatedAt ? new Date(todo.updatedAt) : undefined,
+            createdAt: todo.createdAt ? new Date(todo.createdAt) : undefined
+          }))
+        };
       } else {
+        notificationsStore.add(
+          createNotification(NotificationType.ERROR, "Заметка не найдена")
+        );
         router.push("/");
       }
     }
   }
 
-  function save() {
-    note.value.updatedAt = new Date();
-
-    if (isNew.value) {
-      notesStore.addNote(note.value);
-    } else {
-      notesStore.updateNote(note.value);
+  function validateNote(): boolean {
+    if (!note.value.title.trim()) {
+      notificationsStore.add(
+        createNotification(
+          NotificationType.ERROR,
+          "Заголовок заметки обязателен"
+        )
+      );
+      return false;
     }
+    return true;
+  }
 
-    router.push("/");
+  function save() {
+    if (!validateNote()) return;
+
+    try {
+      note.value.updatedAt = new Date();
+
+      if (isNew.value) {
+        notesStore.addNote(note.value);
+      } else {
+        notesStore.updateNote(note.value);
+      }
+      router.push("/");
+    } catch (error) {
+      notificationsStore.add(
+        createNotification(
+          NotificationType.ERROR,
+          "Произошла ошибка при сохранении заметки"
+        )
+      );
+    }
   }
 
   function handleCancelConfirm() {
     showCancelDialog.value = false;
+    notificationsStore.add(
+      createNotification(NotificationType.WARNING, "Изменения отменены")
+    );
     router.push("/");
   }
 
   function handleDeleteConfirm() {
-    showDeleteDialog.value = false;
-    notesStore.deleteNote(note.value.id);
-    router.push("/");
+    try {
+      showDeleteDialog.value = false;
+      notesStore.deleteNote(note.value.id);
+      notificationsStore.add(
+        createNotification(NotificationType.SUCCESS, "Заметка успешно удалена")
+      );
+      router.push("/");
+    } catch (error) {
+      notificationsStore.add(
+        createNotification(
+          NotificationType.ERROR,
+          "Произошла ошибка при удалении заметки"
+        )
+      );
+    }
   }
 
   function undoRedo(action: "undo" | "redo") {
-    if (action === "undo" && canUndo.value) {
-      notesStore.undo();
-    } else if (action === "redo" && canRedo.value) {
-      notesStore.redo();
+    try {
+      if (action === "undo" && canUndo.value) {
+        notesStore.undo();
+        notificationsStore.add(
+          createNotification(NotificationType.SUCCESS, "Действие отменено")
+        );
+      } else if (action === "redo" && canRedo.value) {
+        notesStore.redo();
+        notificationsStore.add(
+          createNotification(NotificationType.SUCCESS, "Действие восстановлено")
+        );
+      }
+    } catch (error) {
+      notificationsStore.add(
+        createNotification(
+          NotificationType.ERROR,
+          `Не удалось ${
+            action === "undo" ? "отменить" : "восстановить"
+          } действие`
+        )
+      );
     }
   }
 
   function cancel() {
-    showCancelDialog.value = true;
+    if (
+      note.value.title.trim() ||
+      note.value.todos.some((todo) => todo.text.trim())
+    ) {
+      showCancelDialog.value = true;
+    } else {
+      router.push("/");
+    }
   }
 
   const dialogs = ref([
@@ -135,7 +221,7 @@ export function useNoteEditor() {
     }
   ]);
 
-  const buttons = computed(() => [
+  const buttons = computed<IButton[]>(() => [
     {
       label: "↩",
       action: () => undoRedo("undo"),
@@ -157,7 +243,8 @@ export function useNoteEditor() {
     {
       label: "Отмена",
       action: cancel,
-      class: "bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600",
+      class:
+        "bg-blue-500 text-white px-4 py-2 rounded hover:bg-gray-600 !important",
       disabled: false
     }
   ]);
@@ -171,7 +258,9 @@ export function useNoteEditor() {
     showCancelDialog,
     loadExistingNote,
     handleDeleteConfirm,
-    handleCancelConfirm
+    handleCancelConfirm,
+    save,
+    cancel
   };
 }
 
@@ -246,12 +335,12 @@ export function useConfirmDialog({
 
   const buttons: ConfirmDialogButton[] = [
     {
-      text: "Отмена",
+      text: "Нет",
       class: "px-4 py-2 text-gray-600 hover:text-gray-800",
       onClick: closeDialog
     },
     {
-      text: "Хорошо",
+      text: "Да",
       class: "px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600",
       onClick: confirm
     }

@@ -8,8 +8,15 @@ export const useNotesStore = defineStore("notes", {
   state: (): NotesState => ({
     notes: [],
     history: [],
-    currentIndex: -1
+    currentIndex: -1,
+    isNewNoteRoute: false
   }),
+
+  getters: {
+    totalNotes: (state) => state.notes.length,
+
+    isNewNote: (state) => state.isNewNoteRoute
+  },
 
   actions: {
     initializeFromStorage() {
@@ -25,11 +32,15 @@ export const useNotesStore = defineStore("notes", {
           const notifications = useNotificationsStore();
           notifications.add({
             type: NotificationType.ERROR,
-            message: "Failed to load notes from storage",
+            message: "Не удалось загрузить заметки из хранилища",
             timeout: 5000
           });
         }
       }
+    },
+
+    setNewNoteRoute(isNew: boolean) {
+      this.isNewNoteRoute = isNew;
     },
 
     saveToStorage() {
@@ -40,7 +51,7 @@ export const useNotesStore = defineStore("notes", {
           const notifications = useNotificationsStore();
           notifications.add({
             type: NotificationType.ERROR,
-            message: "Failed to save notes to storage",
+            message: "Не удалось сохранить заметки в хранилище",
             timeout: 5000
           });
         }
@@ -53,7 +64,7 @@ export const useNotesStore = defineStore("notes", {
       if (!note.title.trim()) {
         notifications.add({
           type: NotificationType.ERROR,
-          message: "Note title is required",
+          message: "Название заметки обязательно",
           timeout: 3000
         });
         return;
@@ -75,7 +86,7 @@ export const useNotesStore = defineStore("notes", {
 
       notifications.add({
         type: NotificationType.SUCCESS,
-        message: "Note added successfully",
+        message: "Заметка успешно добавлена",
         timeout: 3000
       });
     },
@@ -96,11 +107,17 @@ export const useNotesStore = defineStore("notes", {
           previousNote,
           timestamp: new Date()
         });
+
+        const notifications = useNotificationsStore();
+        notifications.add({
+          type: NotificationType.SUCCESS,
+          message: "Заметка успешно обновлена",
+          timeout: 3000
+        });
       }
     },
 
     deleteNote(id: string) {
-      const notifications = useNotificationsStore();
       const index = this.notes.findIndex((n) => n.id === id);
       if (index !== -1) {
         const deletedNote = { ...this.notes[index] };
@@ -112,9 +129,10 @@ export const useNotesStore = defineStore("notes", {
           timestamp: new Date()
         });
 
+        const notifications = useNotificationsStore();
         notifications.add({
           type: NotificationType.SUCCESS,
-          message: "Note deleted successfully",
+          message: "Заметка успешно удалена",
           timeout: 3000
         });
       }

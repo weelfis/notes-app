@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { useTodoItems } from "../composables/useNoteEditor";
+import { watch } from "vue";
+import { useTodoItems } from "../use/useNotesHelper";
+
 import type { TodoItem } from "../types/index";
 
 interface Props {
@@ -19,6 +21,16 @@ const { todos, addTodo, removeTodo, updateTodo } = useTodoItems({
   onAdd: () => emit("add"),
   onRemove: (index) => emit("remove", index)
 });
+
+watch(
+  () => props.todos,
+  (newTodos) => {
+    if (JSON.stringify(newTodos) !== JSON.stringify(todos.value)) {
+      todos.value = JSON.parse(JSON.stringify(newTodos));
+    }
+  },
+  { deep: true, immediate: true }
+);
 </script>
 
 <template>
@@ -48,8 +60,8 @@ const { todos, addTodo, removeTodo, updateTodo } = useTodoItems({
       />
       <button
         class="text-red-500 hover:text-red-600"
-        @click="removeTodo(index)"
         aria-label="Удалить задачу"
+        @click="removeTodo(index)"
       >
         Удалить
       </button>
