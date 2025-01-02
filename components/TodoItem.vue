@@ -1,14 +1,19 @@
 <script setup lang="ts">
 import { watch } from "vue";
 import { useTodoItems } from "../use/useNotesHelper";
-
 import type { TodoItem } from "../types/index";
 
 interface Props {
   todos: TodoItem[];
+  hideButton?: boolean;
+  readOnly?: boolean;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  hideButton: false,
+  readOnly: false
+});
+
 const emit = defineEmits<{
   "update:todos": [todos: TodoItem[]];
   add: [];
@@ -48,6 +53,7 @@ watch(
         :disabled="!todo.text.trim()"
       />
       <input
+        :disabled="readOnly"
         :value="todo.text"
         @input="
           updateTodo(index, { text: ($event.target as HTMLInputElement).value })
@@ -59,6 +65,7 @@ watch(
         placeholder="Задача"
       />
       <button
+        v-if="!hideButton"
         class="text-red-500 hover:text-red-600"
         aria-label="Удалить задачу"
         @click="removeTodo(index)"
@@ -67,7 +74,11 @@ watch(
       </button>
     </div>
 
-    <button class="text-blue-500 hover:text-blue-600" @click="addTodo">
+    <button
+      v-if="!hideButton"
+      class="text-blue-500 hover:text-blue-600"
+      @click="addTodo"
+    >
       Добавить задачу
     </button>
   </div>

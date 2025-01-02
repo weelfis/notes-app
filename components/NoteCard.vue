@@ -43,14 +43,19 @@ function confirmDelete() {
         <span
           :class="[
             { 'bg-green-500': todo.completed },
-            'w-4 h-4 border rounded mr-2'
+            'w-4 h-4 border rounded mr-2 flex-shrink-0'
           ]"
         />
-        <span :class="{ 'line-through': todo.completed }">
+        <span
+          :class="[
+            { 'line-through': todo.completed },
+            'truncate whitespace-nowrap'
+          ]"
+        >
           {{ todo.text }}
         </span>
       </div>
-      <div v-if="note.todos.length > 3" class="text-gray-500 italic">
+      <div v-if="note.todos.length > 3" class="text-gray-500 italic text-sm">
         ... и ещё {{ note.todos.length - 3 }}
       </div>
     </div>
