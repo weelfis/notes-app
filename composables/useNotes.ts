@@ -68,50 +68,6 @@ export const useNotesStore = defineStore("notes", {
       this.currentIndex++;
       this.history = this.history.slice(0, this.currentIndex);
       this.history.push(action);
-    },
-
-    undo() {
-      if (this.currentIndex >= 0) {
-        const action = this.history[this.currentIndex];
-        switch (action.type) {
-          case "ADD_NOTE":
-            this.notes = this.notes.filter((n) => n.id !== action.note.id);
-            break;
-          case "UPDATE_NOTE":
-            const index = this.notes.findIndex((n) => n.id === action.note.id);
-            if (index !== -1) {
-              this.notes[index] = action.previousNote;
-            }
-            break;
-          case "DELETE_NOTE":
-            this.notes.push(action.note);
-            break;
-        }
-        this.currentIndex--;
-        this.saveToStorage();
-      }
-    },
-
-    redo() {
-      if (this.currentIndex < this.history.length - 1) {
-        this.currentIndex++;
-        const action = this.history[this.currentIndex];
-        switch (action.type) {
-          case "ADD_NOTE":
-            this.notes.push(action.note);
-            break;
-          case "UPDATE_NOTE":
-            const index = this.notes.findIndex((n) => n.id === action.note.id);
-            if (index !== -1) {
-              this.notes[index] = action.note;
-            }
-            break;
-          case "DELETE_NOTE":
-            this.notes = this.notes.filter((n) => n.id !== action.note.id);
-            break;
-        }
-        this.saveToStorage();
-      }
     }
   }
 });

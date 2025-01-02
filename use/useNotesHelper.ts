@@ -67,11 +67,6 @@ export function useNoteEditor() {
     id: isNew.value ? crypto.randomUUID() : (route.params.id as string)
   });
 
-  const canUndo = computed(() => notesStore.currentIndex >= 0);
-  const canRedo = computed(
-    () => notesStore.currentIndex < notesStore.history.length - 1
-  );
-
   const showDeleteDialog = ref(false);
   const showCancelDialog = ref(false);
 
@@ -168,31 +163,6 @@ export function useNoteEditor() {
     }
   }
 
-  function undoRedo(action: "undo" | "redo") {
-    try {
-      if (action === "undo" && canUndo.value) {
-        notesStore.undo();
-        notificationsStore.add(
-          createNotification(NotificationType.SUCCESS, "Действие отменено")
-        );
-      } else if (action === "redo" && canRedo.value) {
-        notesStore.redo();
-        notificationsStore.add(
-          createNotification(NotificationType.SUCCESS, "Действие восстановлено")
-        );
-      }
-    } catch (error) {
-      notificationsStore.add(
-        createNotification(
-          NotificationType.ERROR,
-          `Не удалось ${
-            action === "undo" ? "отменить" : "восстановить"
-          } действие`
-        )
-      );
-    }
-  }
-
   function cancel() {
     if (
       note.value.title.trim() ||
@@ -222,18 +192,6 @@ export function useNoteEditor() {
   ]);
 
   const buttons = computed<IButton[]>(() => [
-    {
-      label: "↩",
-      action: () => undoRedo("undo"),
-      class: "text-gray-600 hover:text-gray-800 disabled:opacity-50",
-      disabled: !canUndo.value
-    },
-    {
-      label: "↪",
-      action: () => undoRedo("redo"),
-      class: "text-gray-600 hover:text-gray-800 disabled:opacity-50",
-      disabled: !canRedo.value
-    },
     {
       label: "Сохранить",
       action: save,

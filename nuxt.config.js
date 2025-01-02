@@ -14,7 +14,6 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     apiSecret: "",
-
     public: {
       maxNotesPerUser: 100,
       maxTodosPerNote: 50,
@@ -23,5 +22,9 @@ export default defineNuxtConfig({
     }
   },
 
-  compatibilityDate: "2024-12-20"
+  compatibilityDate: "2024-12-20",
+
+  nitro: {
+    preset: "static"
+  }
 });

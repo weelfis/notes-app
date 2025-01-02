@@ -128,13 +128,6 @@ export const useNotesStore = defineStore("notes", {
           note: deletedNote,
           timestamp: new Date()
         });
-
-        const notifications = useNotificationsStore();
-        notifications.add({
-          type: NotificationType.SUCCESS,
-          message: "Заметка успешно удалена",
-          timeout: 3000
-        });
       }
     },
 
@@ -144,70 +137,6 @@ export const useNotesStore = defineStore("notes", {
       }
       this.history.push(action);
       this.currentIndex = this.history.length - 1;
-    },
-
-    undo() {
-      if (this.currentIndex >= 0) {
-        const action = this.history[this.currentIndex];
-
-        switch (action.type) {
-          case "ADD_NOTE": {
-            const index = this.notes.findIndex((n) => n.id === action.note.id);
-            if (index !== -1) {
-              this.notes.splice(index, 1);
-            }
-            break;
-          }
-          case "UPDATE_NOTE": {
-            if (action.previousNote) {
-              const index = this.notes.findIndex(
-                (n) => n.id === action.note.id
-              );
-              if (index !== -1) {
-                this.notes[index] = { ...action.previousNote };
-              }
-            }
-            break;
-          }
-          case "DELETE_NOTE": {
-            this.notes.push({ ...action.note });
-            break;
-          }
-        }
-
-        this.currentIndex--;
-        this.saveToStorage();
-      }
-    },
-
-    redo() {
-      if (this.currentIndex < this.history.length - 1) {
-        this.currentIndex++;
-        const action = this.history[this.currentIndex];
-
-        switch (action.type) {
-          case "ADD_NOTE": {
-            this.notes.push({ ...action.note });
-            break;
-          }
-          case "UPDATE_NOTE": {
-            const index = this.notes.findIndex((n) => n.id === action.note.id);
-            if (index !== -1) {
-              this.notes[index] = { ...action.note };
-            }
-            break;
-          }
-          case "DELETE_NOTE": {
-            const index = this.notes.findIndex((n) => n.id === action.note.id);
-            if (index !== -1) {
-              this.notes.splice(index, 1);
-            }
-            break;
-          }
-        }
-
-        this.saveToStorage();
-      }
     }
   }
 });
