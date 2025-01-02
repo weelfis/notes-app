@@ -28,7 +28,7 @@ onMounted(() => {
     <div class="max-w-2xl mx-auto">
       <Toolbar
         :buttons="buttons"
-        :is-new="isNew"
+        :isNew="isNew"
         @delete="showDeleteDialog = true"
       />
       <input

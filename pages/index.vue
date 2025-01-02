@@ -2,6 +2,7 @@
 import { ref, onMounted } from "vue";
 import NoteCard from "../components/NoteCard.vue";
 import TodoModal from "../components/TodoModal.vue";
+import NoteIsNot from "../components/NoteIsNot.vue";
 import { useNotesStore } from "../stores/notes";
 import { useNotesList } from "../use/useNotesHelper";
 import { useRouteWatcher } from "../use/useRouteWatcher";
@@ -9,9 +10,9 @@ import { useRouteWatcher } from "../use/useRouteWatcher";
 const {
   notes,
   showConfirmDialog,
-  confirmDelete,
   handleConfirmDelete,
-  initializeNotes
+  initializeNotes,
+  confirmDelete
 } = useNotesList();
 
 const { updateRouteState } = useRouteWatcher();
@@ -42,6 +43,13 @@ onMounted(() => {
 </script>
 
 <template>
+  <NoteIsNot
+    v-if="
+      !notesStore.totalNotes && !notesStore.isNewNote && showCreateNoteMessage
+    "
+    :showCreateNoteMessage="showCreateNoteMessage"
+  />
+
   <div class="container mx-auto px-4 py-8">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
       <NoteCard
@@ -52,24 +60,6 @@ onMounted(() => {
         @confirmDelete="confirmDelete"
         @click="() => handleNoteModal(note)"
       />
-    </div>
-
-    <div
-      v-if="
-        !notesStore.totalNotes && !notesStore.isNewNote && showCreateNoteMessage
-      "
-      class="flex flex-col items-center mt-4"
-    >
-      <h3 class="text-3xl font-bold text-gray-800 mt-14">
-        Пора записать что-то важное
-      </h3>
-      <NuxtLink
-        to="/notes/new"
-        class="bg-blue-500 text-white px-4 py-2 rounded-md mt-14 hover:bg-blue-600 transition-colors text-center text-xl text-bold"
-        activeClass="text-blue-600"
-      >
-        Создать заметку
-      </NuxtLink>
     </div>
 
     <ConfirmDialog

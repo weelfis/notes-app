@@ -12,13 +12,13 @@ const emit = defineEmits<{
   delete: [];
 }>();
 
-function handleKeydown(event: KeyboardEvent, button: IButton) {
-  if (event.key === "Enter" && button.label === "Сохранить") {
-    button.action();
-  } else if (event.key === "Backspace" && button.label === "Отмена") {
-    button.action();
-  }
-}
+// function handleKeydown(event: KeyboardEvent, button: IButton) {
+//   if (event.key === "Enter" && button.label === "Сохранить") {
+//     button.action();
+//   } else if (event.key === "Backspace" && button.label === "Отмена") {
+//     button.action();
+//   }
+// }
 </script>
 
 <template>
@@ -30,9 +30,9 @@ function handleKeydown(event: KeyboardEvent, button: IButton) {
         :class="button.class"
         tabindex="0"
         :disabled="button.disabled"
-        @keydown="handleKeydown($event, button)"
         @click="button.action"
       >
+        <!-- @keydown="handleKeydown($event, button)" -->
         {{ button.label }}
       </button>
       <button

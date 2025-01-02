@@ -120,6 +120,7 @@ export function useNoteEditor() {
 
     try {
       note.value.updatedAt = new Date();
+      note.value.todos = removeEmptyTodos(note.value.todos);
 
       if (isNew.value) {
         notesStore.addNote(note.value);
@@ -135,6 +136,10 @@ export function useNoteEditor() {
         )
       );
     }
+  }
+
+  function removeEmptyTodos(todos: TodoItem[]) {
+    return todos.filter((todo) => todo.text.trim());
   }
 
   function handleCancelConfirm() {
