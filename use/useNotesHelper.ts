@@ -10,7 +10,6 @@ import type {
   UseTodoItemsProps,
   ConfirmDialogButton,
   UseConfirmDialogProps,
-  IButton,
   NotificationPayload
 } from "../types/index";
 
@@ -61,6 +60,7 @@ export function useNoteEditor() {
   };
 
   const isNew = computed(() => route.params.id === "new");
+  // const isNoteCreate = ref(false);
 
   const note = ref<Note>({
     ...DEFAULT_NOTE,
@@ -196,27 +196,10 @@ export function useNoteEditor() {
     }
   ]);
 
-  const buttons = computed<IButton[]>(() => [
-    {
-      label: "Сохранить",
-      action: save,
-      class: "bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600",
-      disabled: false
-    },
-    {
-      label: "Отмена",
-      action: cancel,
-      class:
-        "bg-blue-500 text-white px-4 py-2 rounded hover:bg-gray-600 !important",
-      disabled: false
-    }
-  ]);
-
   return {
     note,
     isNew,
     dialogs,
-    buttons,
     showDeleteDialog,
     showCancelDialog,
     loadExistingNote,

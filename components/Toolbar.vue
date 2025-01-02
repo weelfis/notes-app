@@ -1,39 +1,25 @@
 <script setup lang="ts">
 import { defineProps, defineEmits } from "vue";
-import type { IButton } from "../types/index";
 
 interface IProps {
-  buttons: IButton[];
   isNew: boolean;
 }
 defineProps<IProps>();
 
 const emit = defineEmits<{
-  delete: [];
+  (e: "save"): void;
+  (e: "delete"): void;
 }>();
-
-// function handleKeydown(event: KeyboardEvent, button: IButton) {
-//   if (event.key === "Enter" && button.label === "Сохранить") {
-//     button.action();
-//   } else if (event.key === "Backspace" && button.label === "Отмена") {
-//     button.action();
-//   }
-// }
 </script>
 
 <template>
   <div class="flex justify-between items-center mb-8">
     <div class="space-x-4">
       <button
-        v-for="button in buttons"
-        :key="button.label"
-        :class="button.class"
-        tabindex="0"
-        :disabled="button.disabled"
-        @click="button.action"
+        class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+        @click="emit('save')"
       >
-        <!-- @keydown="handleKeydown($event, button)" -->
-        {{ button.label }}
+        Сохранить
       </button>
       <button
         v-if="!isNew"

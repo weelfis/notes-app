@@ -7,7 +7,7 @@ const notesStore = useNotesStore();
 const route = useRoute();
 
 const currentLink = computed(() => {
-  if (route.path === "/notes/new") {
+  if (route.path.includes("notes")) {
     return {
       to: "/",
       text: `Все заметки (${notesStore.totalNotes})`,

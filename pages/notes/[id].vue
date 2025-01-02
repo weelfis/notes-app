@@ -6,10 +6,10 @@ import TodoItem from "../../components/TodoItem.vue";
 import Toolbar from "../../components/Toolbar.vue";
 
 const {
+  save,
   note,
   isNew,
   dialogs,
-  buttons,
   showDeleteDialog,
   loadExistingNote,
   handleDeleteConfirm
@@ -26,11 +26,7 @@ onMounted(() => {
 <template>
   <div class="container mx-auto px-4 py-8">
     <div class="max-w-2xl mx-auto">
-      <Toolbar
-        :buttons="buttons"
-        :isNew="isNew"
-        @delete="showDeleteDialog = true"
-      />
+      <Toolbar :isNew="isNew" @delete="showDeleteDialog = true" @save="save" />
       <input
         v-model="note.title"
         class="text-2xl font-bold bg-transparent border-b mb-12 border-gray-300 focus:border-blue-500 outline-none"
