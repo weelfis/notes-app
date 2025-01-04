@@ -2,6 +2,20 @@
 import HeaderBase from "../components/HeaderBase.vue";
 import FooterBase from "../components/FooterBase.vue";
 import Notifications from "../components/Notifications.vue";
+import { useRouter } from "vue-router";
+import { useNotesStore } from "../stores/notes";
+
+const notesStore = useNotesStore();
+
+const router = useRouter();
+
+router.beforeEach((to, from, next) => {
+  if (to.path.includes("notes")) {
+    notesStore.removeCurrentNote();
+  }
+
+  next();
+});
 </script>
 
 <template>

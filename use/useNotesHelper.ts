@@ -63,7 +63,9 @@ export function useNoteEditor() {
 
   const note = ref<INote>({
     ...DEFAULT_NOTE,
-    id: isNew.value ? crypto.randomUUID() : (route.params.id as string)
+    id: isNew.value ? crypto.randomUUID() : (route.params.id as string),
+    title: "",
+    todos: []
   });
 
   const showDeleteDialog = ref(false);
@@ -292,7 +294,7 @@ export function useConfirmDialog({
     },
     {
       text: "Confirm",
-      class: "px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600",
+      class: "px-4 py-2 bg-blue-500 text-white rounded hover:bg-red-600",
       onClick: confirm
     }
   ];

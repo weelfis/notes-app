@@ -44,6 +44,7 @@ export interface INotesState {
   history: HistoryAction[];
   currentIndex: number;
   isNewNoteRoute: boolean;
+  currentNote: INote | null;
 }
 
 export enum ENotificationType {

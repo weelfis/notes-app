@@ -29,7 +29,7 @@ function confirmDelete(event: MouseEvent) {
         >
           Edit
         </NuxtLink>
-        <button @click="confirmDelete" class="text-red-500 hover:text-red-600">
+        <button @click="confirmDelete" class="text-red-300 hover:text-red-600">
           Delete
         </button>
       </div>

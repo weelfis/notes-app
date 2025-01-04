@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import { ENotificationType } from "../types";
 import { useNotificationsStore } from "./useNotificationsStore";
-
 import type { INote, INotesState, HistoryAction } from "../types";
 
 export const useNotesStore = defineStore("notes", {
@@ -9,32 +8,34 @@ export const useNotesStore = defineStore("notes", {
     notes: [],
     history: [],
     currentIndex: -1,
-    isNewNoteRoute: false
+    isNewNoteRoute: false,
+    currentNote: null as INote | null
   }),
 
   getters: {
     totalNotes: (state) => state.notes.length,
-
-    isNewNote: (state) => state.isNewNoteRoute
+    isNewNote: (state) => state.isNewNoteRoute,
+    getCurrentNote: (state) => state.currentNote
   },
 
   actions: {
     initializeFromStorage() {
       if (process.client) {
         try {
-          const stored = localStorage.getItem("notes");
-          if (stored) {
-            this.notes = JSON.parse(stored);
+          const storedNotes = localStorage.getItem("notes");
+          const storedCurrentNote = localStorage.getItem("currentNote");
+
+          if (storedNotes) {
+            this.notes = JSON.parse(storedNotes);
           }
+          if (storedCurrentNote) {
+            this.currentNote = JSON.parse(storedCurrentNote);
+          }
+
           this.history = [];
           this.currentIndex = -1;
         } catch (error) {
-          const notifications = useNotificationsStore();
-          notifications.add({
-            type: ENotificationType.ERROR,
-            message: "Failed to load notes from storage",
-            timeout: 5000
-          });
+          this.notifyError("Failed to load notes from storage");
         }
       }
     },
@@ -45,28 +46,18 @@ export const useNotesStore = defineStore("notes", {
 
     saveToStorage() {
       if (process.client) {
-        try {
-          localStorage.setItem("notes", JSON.stringify(this.notes));
-        } catch (error) {
-          const notifications = useNotificationsStore();
-          notifications.add({
-            type: ENotificationType.ERROR,
-            message: "Failed to save notes to storage",
-            timeout: 5000
-          });
+        localStorage.setItem("notes", JSON.stringify(this.notes));
+        if (this.currentNote) {
+          localStorage.setItem("currentNote", JSON.stringify(this.currentNote));
+        } else {
+          localStorage.removeItem("currentNote");
         }
       }
     },
 
     addNote(note: INote) {
-      const notifications = useNotificationsStore();
-
       if (!note.title.trim()) {
-        notifications.add({
-          type: ENotificationType.ERROR,
-          message: "Note title is required",
-          timeout: 3000
-        });
+        this.notifyError("Note title is required");
         return;
       }
 
@@ -84,11 +75,10 @@ export const useNotesStore = defineStore("notes", {
         timestamp: new Date()
       });
 
-      notifications.add({
-        type: ENotificationType.SUCCESS,
-        message: "Note successfully added",
-        timeout: 3000
-      });
+      this.currentNote = null;
+      localStorage.removeItem("currentNote");
+
+      this.notifySuccess("Note successfully added");
     },
 
     updateNote(note: INote) {
@@ -108,12 +98,10 @@ export const useNotesStore = defineStore("notes", {
           timestamp: new Date()
         });
 
-        const notifications = useNotificationsStore();
-        notifications.add({
-          type: ENotificationType.SUCCESS,
-          message: "Note successfully updated",
-          timeout: 3000
-        });
+        this.currentNote = null;
+        localStorage.removeItem("currentNote");
+
+        this.notifySuccess("Note successfully updated");
       }
     },
 
@@ -128,6 +116,7 @@ export const useNotesStore = defineStore("notes", {
           note: deletedNote,
           timestamp: new Date()
         });
+        this.notifySuccess("Note successfully deleted");
       }
     },
 
@@ -137,6 +126,33 @@ export const useNotesStore = defineStore("notes", {
       }
       this.history.push(action);
       this.currentIndex = this.history.length - 1;
+    },
+
+    notifyError(message: string) {
+      const notifications = useNotificationsStore();
+      notifications.add({
+        type: ENotificationType.ERROR,
+        message,
+        timeout: 5000
+      });
+    },
+
+    notifySuccess(message: string) {
+      const notifications = useNotificationsStore();
+      notifications.add({
+        type: ENotificationType.SUCCESS,
+        message,
+        timeout: 3000
+      });
+    },
+
+    setCurrentNote(note: INote | null) {
+      this.currentNote = note;
+      this.saveToStorage();
+    },
+    removeCurrentNote(note: INote | null) {
+      this.currentNote = null;
+      localStorage.removeItem("currentNote");
     }
   }
 });
