@@ -10,7 +10,7 @@ const currentLink = computed(() => {
   if (route.path.includes("notes")) {
     return {
       to: "/",
-      text: `Все заметки (${notesStore.totalNotes})`,
+      text: `All notes (${notesStore.totalNotes})`,
       class: "text-gray-600 hover:text-blue-600 transition-colors",
       activeClass: "text-blue-600"
     };
@@ -18,7 +18,7 @@ const currentLink = computed(() => {
 
   return {
     to: "/notes/new",
-    text: "Новая заметка",
+    text: "New note",
     class:
       "bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors",
     activeClass: ""

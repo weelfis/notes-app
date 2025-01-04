@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useNotificationsStore } from "../stores/useNotificationsStore";
-import { NotificationType } from "../types";
+import { ENotificationType } from "../types";
 
 const notifications = useNotificationsStore();
 </script>
@@ -13,10 +13,10 @@ const notifications = useNotificationsStore();
       :class="[
         'p-4 rounded-lg shadow-lg max-w-md transform transition-all duration-300',
         {
-          'bg-green-500 text-white': NotificationType.SUCCESS,
-          'bg-red-500 text-white': NotificationType.ERROR,
-          'bg-yellow-500 text-white': NotificationType.WARNING,
-          'bg-blue-500 text-white': NotificationType.INFO
+          'bg-green-500 text-white': ENotificationType.SUCCESS,
+          'bg-red-500 text-white': ENotificationType.ERROR,
+          'bg-yellow-500 text-white': ENotificationType.WARNING,
+          'bg-blue-500 text-white': ENotificationType.INFO
         }
       ]"
     >

@@ -3,17 +3,9 @@ import { onMounted } from "vue";
 import { useNoteEditor } from "../../use/useNotesHelper";
 import { useRouteWatcher } from "../../use/useRouteWatcher";
 import TodoItem from "../../components/TodoItem.vue";
-import Toolbar from "../../components/Toolbar.vue";
 
-const {
-  save,
-  note,
-  isNew,
-  dialogs,
-  showDeleteDialog,
-  loadExistingNote,
-  handleDeleteConfirm
-} = useNoteEditor();
+const { save, note, isNew, dialogs, loadExistingNote, handleDeleteConfirm } =
+  useNoteEditor();
 
 const { updateRouteState } = useRouteWatcher();
 
@@ -25,14 +17,31 @@ onMounted(() => {
 
 <template>
   <div class="container mx-auto px-4 py-8">
-    <div class="max-w-2xl mx-auto">
-      <Toolbar :isNew="isNew" @delete="showDeleteDialog = true" @save="save" />
+    <div class="max-w-2xl mx-auto flex flex-col">
       <input
         v-model="note.title"
         class="text-2xl font-bold bg-transparent border-b mb-12 border-gray-300 focus:border-blue-500 outline-none"
-        placeholder="Заголовок"
+        placeholder="Title"
       />
       <TodoItem :todos="note.todos" @update:todos="note.todos = $event" />
+
+      <div class="flex justify-between items-center mt-4">
+        <div class="space-x-4 flex">
+          <button
+            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1"
+            @click="save"
+          >
+            Save
+          </button>
+          <button
+            v-if="!isNew"
+            class="bg-red-300 text-white px-4 py-2 rounded hover:bg-red-600 flex-1"
+            @click="handleDeleteConfirm"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
     </div>
 
     <ConfirmDialog

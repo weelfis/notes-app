@@ -1,14 +1,14 @@
 import { defineStore } from "pinia";
-import type { Notification, NotificationsState } from "../types";
+import type { INotification, INotificationsState } from "../types";
 
 export const useNotificationsStore = defineStore("notifications", {
-  state: (): NotificationsState => ({
+  state: (): INotificationsState => ({
     notifications: []
   }),
 
   actions: {
-    add(notification: Omit<Notification, "id">) {
-      const newNotification: Notification = {
+    add(notification: Omit<INotification, "id">) {
+      const newNotification: INotification = {
         ...notification,
         id: crypto.randomUUID()
       };

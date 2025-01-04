@@ -1,20 +1,9 @@
 import { defineStore } from "pinia";
-
-interface TodoItem {
-  id: string;
-  text: string;
-  completed: boolean;
-}
-
-interface Note {
-  id: string;
-  title: string;
-  todos: TodoItem[];
-}
+import type { INote } from "../types/index";
 
 export const useNotesStore = defineStore("notes", {
   state: () => ({
-    notes: [] as Note[],
+    notes: [] as INote[],
     history: [] as any[],
     currentIndex: -1
   }),
@@ -35,13 +24,13 @@ export const useNotesStore = defineStore("notes", {
       }
     },
 
-    addNote(note: Note) {
+    addNote(note: INote) {
       this.notes.push(note);
       this.saveToStorage();
       this.addToHistory({ type: "ADD_NOTE", note });
     },
 
-    updateNote(note: Note) {
+    updateNote(note: INote) {
       const index = this.notes.findIndex((n) => n.id === note.id);
       if (index !== -1) {
         this.notes[index] = note;

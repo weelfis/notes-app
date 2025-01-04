@@ -3,13 +3,13 @@ import { useRoute, useRouter } from "vue-router";
 import { useNotesStore } from "../stores/notes";
 import { useNotificationsStore } from "../stores/useNotificationsStore";
 
-import { NotificationType } from "../types/index";
+import { ENotificationType } from "../types/index";
 import type {
-  Note,
-  TodoItem,
-  UseTodoItemsProps,
-  ConfirmDialogButton,
-  UseConfirmDialogProps,
+  INote,
+  ITodoItem,
+  IUseTodoItemsProps,
+  IConfirmDialogButton,
+  IUseConfirmDialogProps,
   NotificationPayload
 } from "../types/index";
 
@@ -17,9 +17,9 @@ export function useNotesList() {
   const notesStore = useNotesStore();
   const notes = computed(() => notesStore.notes);
   const showConfirmDialog = ref(false);
-  const noteToDelete = ref<Note | null>(null);
+  const noteToDelete = ref<INote | null>(null);
 
-  function confirmDelete(note: Note) {
+  function confirmDelete(note: INote) {
     noteToDelete.value = note;
     showConfirmDialog.value = true;
   }
@@ -51,7 +51,7 @@ export function useNoteEditor() {
   const notesStore = useNotesStore();
   const notificationsStore = useNotificationsStore();
 
-  const DEFAULT_NOTE: Note = {
+  const DEFAULT_NOTE: INote = {
     id: "",
     title: "",
     todos: [],
@@ -60,9 +60,8 @@ export function useNoteEditor() {
   };
 
   const isNew = computed(() => route.params.id === "new");
-  // const isNoteCreate = ref(false);
 
-  const note = ref<Note>({
+  const note = ref<INote>({
     ...DEFAULT_NOTE,
     id: isNew.value ? crypto.randomUUID() : (route.params.id as string)
   });
@@ -71,7 +70,7 @@ export function useNoteEditor() {
   const showCancelDialog = ref(false);
 
   const createNotification = (
-    type: NotificationType,
+    type: ENotificationType,
     message: string
   ): NotificationPayload => ({
     type,
@@ -95,7 +94,7 @@ export function useNoteEditor() {
         };
       } else {
         notificationsStore.add(
-          createNotification(NotificationType.ERROR, "Заметка не найдена")
+          createNotification(ENotificationType.ERROR, "Note not found")
         );
         router.push("/");
       }
@@ -106,8 +105,8 @@ export function useNoteEditor() {
     if (!note.value.title.trim()) {
       notificationsStore.add(
         createNotification(
-          NotificationType.ERROR,
-          "Заголовок заметки обязателен"
+          ENotificationType.ERROR,
+          "The note title is required"
         )
       );
       return false;
@@ -131,21 +130,24 @@ export function useNoteEditor() {
     } catch (error) {
       notificationsStore.add(
         createNotification(
-          NotificationType.ERROR,
-          "Произошла ошибка при сохранении заметки"
+          ENotificationType.ERROR,
+          "An error occurred while saving the note"
         )
       );
     }
   }
 
-  function removeEmptyTodos(todos: TodoItem[]) {
+  function removeEmptyTodos(todos: ITodoItem[]) {
     return todos.filter((todo) => todo.text.trim());
   }
 
   function handleCancelConfirm() {
     showCancelDialog.value = false;
     notificationsStore.add(
-      createNotification(NotificationType.WARNING, "Изменения отменены")
+      createNotification(
+        ENotificationType.WARNING,
+        "Changes have been canceled"
+      )
     );
     router.push("/");
   }
@@ -155,14 +157,17 @@ export function useNoteEditor() {
       showDeleteDialog.value = false;
       notesStore.deleteNote(note.value.id);
       notificationsStore.add(
-        createNotification(NotificationType.SUCCESS, "Заметка успешно удалена")
+        createNotification(
+          ENotificationType.SUCCESS,
+          "Note successfully deleted"
+        )
       );
       router.push("/");
     } catch (error) {
       notificationsStore.add(
         createNotification(
-          NotificationType.ERROR,
-          "Произошла ошибка при удалении заметки"
+          ENotificationType.ERROR,
+          "An error occurred while deleting the note"
         )
       );
     }
@@ -182,16 +187,16 @@ export function useNoteEditor() {
   const dialogs = ref([
     {
       visible: showDeleteDialog,
-      title: "Удаление заметки",
+      title: "Delete Note",
       message:
-        "Вы уверены, что хотите удалить эту заметку? Это действие нельзя отменить.",
+        "Are you sure you want to delete this note? This action cannot be undone.",
       onConfirm: handleDeleteConfirm
     },
     {
       visible: showCancelDialog,
-      title: "Отмена изменений",
+      title: "Cancel Changes",
       message:
-        "Вы уверены, что хотите отменить? Все несохраненные изменения будут потеряны.",
+        "Are you sure you want to cancel? All unsaved changes will be lost.",
       onConfirm: handleCancelConfirm
     }
   ]);
@@ -215,8 +220,8 @@ export function useTodoItems({
   onUpdateTodos,
   onAdd,
   onRemove
-}: UseTodoItemsProps) {
-  const localTodos = ref<TodoItem[]>(todos);
+}: IUseTodoItemsProps) {
+  const localTodos = ref<ITodoItem[]>(todos);
 
   watch(
     () => todos,
@@ -226,7 +231,7 @@ export function useTodoItems({
     { deep: true }
   );
 
-  function createTodo(): TodoItem {
+  function createTodo(): ITodoItem {
     return {
       id: crypto.randomUUID(),
       text: "",
@@ -250,7 +255,7 @@ export function useTodoItems({
     onRemove?.(index);
   }
 
-  function updateTodo(index: number, updates: Partial<TodoItem>) {
+  function updateTodo(index: number, updates: Partial<ITodoItem>) {
     const newTodos = [...localTodos.value];
     newTodos[index] = { ...newTodos[index], ...updates };
     localTodos.value = newTodos;
@@ -269,7 +274,7 @@ export function useConfirmDialog({
   modelValue,
   onUpdateModelValue,
   onConfirm
-}: UseConfirmDialogProps) {
+}: IUseConfirmDialogProps) {
   function closeDialog() {
     onUpdateModelValue(false);
   }
@@ -279,14 +284,14 @@ export function useConfirmDialog({
     closeDialog();
   }
 
-  const buttons: ConfirmDialogButton[] = [
+  const buttons: IConfirmDialogButton[] = [
     {
-      text: "Нет",
+      text: "Cancel",
       class: "px-4 py-2 text-gray-600 hover:text-gray-800",
       onClick: closeDialog
     },
     {
-      text: "Да",
+      text: "Confirm",
       class: "px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600",
       onClick: confirm
     }

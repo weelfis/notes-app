@@ -1,21 +1,21 @@
 <script setup lang="ts">
 import { watch } from "vue";
 import { useTodoItems } from "../use/useNotesHelper";
-import type { TodoItem } from "../types/index";
+import type { ITodoItem } from "../types/index";
 
-interface Props {
-  todos: TodoItem[];
+interface IProps {
+  todos: ITodoItem[];
   hideButton?: boolean;
   readOnly?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<IProps>(), {
   hideButton: false,
   readOnly: false
 });
 
 const emit = defineEmits<{
-  "update:todos": [todos: TodoItem[]];
+  "update:todos": [todos: ITodoItem[]];
   add: [];
   remove: [index: number];
 }>();
@@ -62,24 +62,33 @@ watch(
           'flex-1 bg-transparent border-b border-gray-300 focus:border-blue-500 outline-none',
           { 'line-through text-gray-500': todo.completed }
         ]"
-        placeholder="Задача"
+        placeholder="Task name"
       />
       <button
-        v-if="!hideButton"
+        v-if="!hideButton && todos.length > 1 && index !== todos.length - 1"
         class="text-red-500 hover:text-red-600"
-        aria-label="Удалить задачу"
+        aria-label="Delete task"
         @click="removeTodo(index)"
       >
-        Удалить
+        Remove
+      </button>
+      <button
+        v-else-if="
+          !hideButton && todos.length > 1 && index === todos.length - 1
+        "
+        class="text-blue-500 hover:text-blue-600"
+        aria-label="Add task"
+        @click="addTodo"
+      >
+        Add task
       </button>
     </div>
-
     <button
-      v-if="!hideButton"
+      v-if="!hideButton && todos.length < 2"
       class="text-blue-500 hover:text-blue-600"
       @click="addTodo"
     >
-      Добавить задачу
+      Add task
     </button>
   </div>
 </template>

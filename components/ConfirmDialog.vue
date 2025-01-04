@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useConfirmDialog } from "../use/useNotesHelper";
 
-interface Props {
+interface IProps {
   modelValue: boolean;
   title: string;
   message: string;
 }
 
-const props = defineProps<Props>();
+const props = defineProps<IProps>();
 const emit = defineEmits<{
   "update:modelValue": [value: boolean];
   confirm: [];

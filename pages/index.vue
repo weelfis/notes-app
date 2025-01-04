@@ -2,7 +2,7 @@
 import { ref, onMounted } from "vue";
 import NoteCard from "../components/NoteCard.vue";
 import TodoModal from "../components/TodoModal.vue";
-import NoteIsNot from "../components/NoteIsNot.vue";
+import NotesIsNot from "../components/NotesIsNot.vue";
 import { useNotesStore } from "../stores/notes";
 import { useNotesList } from "../use/useNotesHelper";
 import { useRouteWatcher } from "../use/useRouteWatcher";
@@ -43,7 +43,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <NoteIsNot
+  <NotesIsNot
     v-if="
       !notesStore.totalNotes && !notesStore.isNewNote && showCreateNoteMessage
     "
@@ -64,8 +64,8 @@ onMounted(() => {
 
     <ConfirmDialog
       v-model="showConfirmDialog"
-      title="Удаление заметки"
-      message="Вы уверены, что хотите удалить эту заметку? Это действие нельзя отменить."
+      title="Delete Note"
+      message="Are you sure you want to delete this note? This action cannot be undone."
       @confirm="handleConfirmDelete"
     />
 

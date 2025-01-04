@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import type { Note } from "../types";
+import type { INote } from "../types";
+
+interface IProps {
+  note: INote;
+}
+
+const props = defineProps<IProps>();
 
 const emit = defineEmits<{
-  (event: "confirmDelete", note: Note): void;
+  (event: "confirmDelete", note: INote): void;
 }>();
 
-const props = defineProps({
-  note: {
-    type: Object as () => Note,
-    required: true
-  }
-});
-
-function confirmDelete() {
+function confirmDelete(event: MouseEvent) {
+  event.stopPropagation();
   emit("confirmDelete", props.note);
 }
 </script>
@@ -25,11 +25,12 @@ function confirmDelete() {
         <NuxtLink
           :to="`/notes/${note.id}`"
           class="text-blue-500 hover:text-blue-600"
+          @click.stop
         >
-          Править
+          Edit
         </NuxtLink>
         <button @click="confirmDelete" class="text-red-500 hover:text-red-600">
-          Удалить
+          Delete
         </button>
       </div>
     </div>
@@ -56,7 +57,7 @@ function confirmDelete() {
         </span>
       </div>
       <div v-if="note.todos.length > 3" class="text-gray-500 italic text-sm">
-        ... и ещё {{ note.todos.length - 3 }}
+        ... and {{ note.todos.length - 3 }} more
       </div>
     </div>
   </div>

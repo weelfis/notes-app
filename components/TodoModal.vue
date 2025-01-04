@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import TodoItem from "./TodoItem.vue";
 import { useNotesStore } from "../stores/notes";
-import type { TodoItem as TodoItemType, Note } from "../types/index";
+import TodoItem from "./TodoItem.vue";
+import type { ITodoItem, INote } from "../types/index";
 
 const props = defineProps<{
-  note: Note;
+  note: INote;
 }>();
 
 const emit = defineEmits<{
@@ -13,7 +13,7 @@ const emit = defineEmits<{
 }>();
 
 const notesStore = useNotesStore();
-const todos = ref<TodoItemType[]>([]);
+const todos = ref<ITodoItem[]>([]);
 const modalContent = ref<HTMLElement | null>(null);
 const initialTodosState = ref("");
 
@@ -62,9 +62,22 @@ const handleClickOutside = (event: MouseEvent) => {
       <button
         @click="handleClose"
         class="absolute right-4 top-4 p-1 rounded-full hover:bg-gray-100 transition-colors"
-        aria-label="Закрыть"
+        aria-label="Close"
       >
         <i class="icon-close text-gray-500 hover:text-gray-700" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M6 18L18 6M6 6l12 12" />
+        </svg>
       </button>
 
       <div class="pr-8">

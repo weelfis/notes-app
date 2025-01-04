@@ -1,11 +1,11 @@
 import { defineStore } from "pinia";
-import { NotificationType } from "../types";
+import { ENotificationType } from "../types";
 import { useNotificationsStore } from "./useNotificationsStore";
 
-import type { Note, NotesState, HistoryAction } from "../types";
+import type { INote, INotesState, HistoryAction } from "../types";
 
 export const useNotesStore = defineStore("notes", {
-  state: (): NotesState => ({
+  state: (): INotesState => ({
     notes: [],
     history: [],
     currentIndex: -1,
@@ -31,8 +31,8 @@ export const useNotesStore = defineStore("notes", {
         } catch (error) {
           const notifications = useNotificationsStore();
           notifications.add({
-            type: NotificationType.ERROR,
-            message: "Не удалось загрузить заметки из хранилища",
+            type: ENotificationType.ERROR,
+            message: "Failed to load notes from storage",
             timeout: 5000
           });
         }
@@ -50,21 +50,21 @@ export const useNotesStore = defineStore("notes", {
         } catch (error) {
           const notifications = useNotificationsStore();
           notifications.add({
-            type: NotificationType.ERROR,
-            message: "Не удалось сохранить заметки в хранилище",
+            type: ENotificationType.ERROR,
+            message: "Failed to save notes to storage",
             timeout: 5000
           });
         }
       }
     },
 
-    addNote(note: Note) {
+    addNote(note: INote) {
       const notifications = useNotificationsStore();
 
       if (!note.title.trim()) {
         notifications.add({
-          type: NotificationType.ERROR,
-          message: "Название заметки обязательно",
+          type: ENotificationType.ERROR,
+          message: "Note title is required",
           timeout: 3000
         });
         return;
@@ -85,13 +85,13 @@ export const useNotesStore = defineStore("notes", {
       });
 
       notifications.add({
-        type: NotificationType.SUCCESS,
-        message: "Заметка успешно добавлена",
+        type: ENotificationType.SUCCESS,
+        message: "Note successfully added",
         timeout: 3000
       });
     },
 
-    updateNote(note: Note) {
+    updateNote(note: INote) {
       const index = this.notes.findIndex((n) => n.id === note.id);
       if (index !== -1) {
         const previousNote = { ...this.notes[index] };
@@ -110,8 +110,8 @@ export const useNotesStore = defineStore("notes", {
 
         const notifications = useNotificationsStore();
         notifications.add({
-          type: NotificationType.SUCCESS,
-          message: "Заметка успешно обновлена",
+          type: ENotificationType.SUCCESS,
+          message: "Note successfully updated",
           timeout: 3000
         });
       }

@@ -1,4 +1,4 @@
-export interface TodoItem {
+export interface ITodoItem {
   readonly id: string;
   text: string;
   completed: boolean;
@@ -8,17 +8,17 @@ export interface TodoItem {
   priority?: "low" | "medium" | "high";
 }
 
-export interface UseTodoItemsProps {
-  todos: TodoItem[];
-  onUpdateTodos: (todos: TodoItem[]) => void;
+export interface IUseTodoItemsProps {
+  todos: ITodoItem[];
+  onUpdateTodos: (todos: ITodoItem[]) => void;
   onAdd?: () => void;
   onRemove?: (index: number) => void;
 }
 
-export interface Note {
+export interface INote {
   id: string;
   title: string;
-  todos: TodoItem[];
+  todos: ITodoItem[];
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -32,32 +32,30 @@ export interface IButton {
 
 export type HistoryAction = {
   type: "ADD_NOTE" | "UPDATE_NOTE" | "DELETE_NOTE";
-  note: Note;
-  previousNote?: Note;
+  note: INote;
+  previousNote?: INote;
   timestamp: Date;
   userId?: string;
   metadata?: Record<string, unknown>;
 };
 
-export interface NotesState {
-  notes: Note[];
+export interface INotesState {
+  notes: INote[];
   history: HistoryAction[];
   currentIndex: number;
   isNewNoteRoute: boolean;
 }
 
-export enum NotificationType {
+export enum ENotificationType {
   SUCCESS = "success",
   ERROR = "error",
   WARNING = "warning",
   INFO = "info"
 }
 
-export type NotificationPayload = Omit<Notification, "id">;
-
-export interface Notification {
+export interface INotification {
   id: string;
-  type: NotificationType;
+  type: ENotificationType;
   message: string;
   timeout?: number;
   title?: string;
@@ -67,49 +65,35 @@ export interface Notification {
   }[];
 }
 
+export type NotificationPayload = Omit<INotification, "id">;
+
 export interface NotificationConfig {
   position?: "top-right" | "top-left" | "bottom-right" | "bottom-left";
   defaultTimeout?: number;
   maxNotifications?: number;
 }
 
-export interface NotificationStore {
-  add: (notification: NotificationPayload) => void;
-  remove: (id: string) => void;
-  clear: () => void;
-  config?: NotificationConfig;
-}
-
 export type NotificationAction = {
   type: "ADD_NOTIFICATION" | "REMOVE_NOTIFICATION" | "CLEAR_NOTIFICATIONS";
-  payload?: Notification | string;
+  payload?: INotification | string;
   timestamp: Date;
 };
 
-export interface NotificationsState {
-  notifications: Notification[];
+export interface INotificationsState {
+  notifications: INotification[];
   config?: NotificationConfig;
   history?: NotificationAction[];
 }
 
-export type NoteRouteParams = {
-  id: string;
-};
-
-export interface ApiResponse<T> {
-  data?: T;
-  error?: string;
-  status: number;
-}
-
-export interface ConfirmDialogButton {
+export interface IConfirmDialogButton {
   text: string;
   class: string;
   onClick: () => void;
 }
 
-export interface UseConfirmDialogProps {
+export interface IUseConfirmDialogProps {
   modelValue: boolean;
   onUpdateModelValue: (value: boolean) => void;
   onConfirm: () => void;
+  onCancel?: () => void;
 }
