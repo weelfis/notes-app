@@ -3,9 +3,9 @@ import { ref, onMounted } from "vue";
 import NoteCard from "../components/NoteCard.vue";
 import TodoModal from "../components/TodoModal.vue";
 import NotesIsNot from "../components/NotesIsNot.vue";
-import { useNotesStore } from "../stores/notes";
-import { useNotesList } from "../use/useNotesHelper";
-import { useRouteWatcher } from "../use/useRouteWatcher";
+import { useNotesStore } from "../store/useNotesStore";
+import { useNotesList } from "../composables/useNotesList";
+import { useRouteWatcher } from "../composables/useRouteWatcher";
 
 const {
   notes,

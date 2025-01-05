@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { useNotificationsStore } from "../stores/useNotificationsStore";
+import { useNotificationsStore } from "../store/useNotificationsStore";
 import { computed } from "vue";
 
 const notificationsStore = useNotificationsStore();
-
 const notifications = computed(() => notificationsStore.notifications);
 
 const getNotificationStyles = (type: string) => {
@@ -29,7 +28,13 @@ const removeNotification = (id: string) => {
 
 <template>
   <div class="fixed top-4 right-4 z-50 w-96 space-y-2">
-    <TransitionGroup name="notification">
+    <TransitionGroup
+      name="notification"
+      enter-active-class="transition-all duration-300 ease-in-out"
+      leave-active-class="transition-all duration-300 ease-in-out"
+      enter-from-class="opacity-0 translate-x-8"
+      leave-to-class="opacity-0 translate-x-8"
+    >
       <div
         v-for="notification in notifications"
         :key="notification.id"
@@ -37,9 +42,9 @@ const removeNotification = (id: string) => {
       >
         <div class="flex-1 mr-2">{{ notification.message }}</div>
         <button
-          @click="removeNotification(notification.id)"
           class="text-gray-500 hover:text-gray-700"
           aria-label="Close notification"
+          @click="removeNotification(notification.id)"
         >
           ✕
         </button>
@@ -47,20 +52,3 @@ const removeNotification = (id: string) => {
     </TransitionGroup>
   </div>
 </template>
-
-<style scoped>
-.notification-enter-active,
-.notification-leave-active {
-  transition: all 0.3s ease;
-}
-
-.notification-enter-from {
-  opacity: 0;
-  transform: translateX(30px);
-}
-
-.notification-leave-to {
-  opacity: 0;
-  transform: translateX(30px);
-}
-</style>

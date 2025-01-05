@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type { INote } from "../types/index";
+import type { INote, HistoryAction } from "../types/index";
 
 export const useNotesStore = defineStore("notes", {
   state: () => ({
@@ -27,7 +27,7 @@ export const useNotesStore = defineStore("notes", {
     addNote(note: INote) {
       this.notes.push(note);
       this.saveToStorage();
-      this.addToHistory({ type: "ADD_NOTE", note });
+      this.addToHistory({ type: "ADD_NOTE", note, timestamp: new Date() });
     },
 
     updateNote(note: INote) {
@@ -38,6 +38,7 @@ export const useNotesStore = defineStore("notes", {
         this.addToHistory({
           type: "UPDATE_NOTE",
           note,
+          timestamp: new Date(),
           previousNote: this.notes[index]
         });
       }
@@ -49,11 +50,15 @@ export const useNotesStore = defineStore("notes", {
         const deletedNote = this.notes[index];
         this.notes.splice(index, 1);
         this.saveToStorage();
-        this.addToHistory({ type: "DELETE_NOTE", note: deletedNote });
+        this.addToHistory({
+          type: "DELETE_NOTE",
+          note: deletedNote,
+          timestamp: new Date()
+        });
       }
     },
 
-    addToHistory(action: any) {
+    addToHistory(action: HistoryAction) {
       this.currentIndex++;
       this.history = this.history.slice(0, this.currentIndex);
       this.history.push(action);

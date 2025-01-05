@@ -27,12 +27,15 @@ export default {
           900: "#0c4a6e"
         }
       },
-      height: {
-        190: "190px"
+      keyframes: {
+        notificationSlide: {
+          from: { transform: "translateX(30px)", opacity: "0" },
+          to: { transform: "translateX(0)", opacity: "1" }
+        }
       },
-      spacing: {
-        128: "32rem",
-        144: "36rem"
+      animation: {
+        "notification-enter": "notificationSlide 0.3s ease forwards",
+        "notification-leave": "notificationSlide 0.3s ease reverse forwards"
       }
     }
   },

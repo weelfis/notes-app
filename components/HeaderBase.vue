@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useNotesStore } from "../stores/notes";
+import { useNotesStore } from "../store/useNotesStore";
 import { useRoute } from "vue-router";
 import { computed } from "vue";
 

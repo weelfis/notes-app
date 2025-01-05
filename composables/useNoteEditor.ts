@@ -1,49 +1,10 @@
-import { ref, computed, watch } from "vue";
+import { ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { useNotesStore } from "../stores/notes";
-import { useNotificationsStore } from "../stores/useNotificationsStore";
+import { useNotesStore } from "../store/useNotesStore";
+import { useNotificationsStore } from "../store/useNotificationsStore";
 
 import { ENotificationType } from "../types/index";
-import type {
-  INote,
-  ITodoItem,
-  IUseTodoItemsProps,
-  IConfirmDialogButton,
-  IUseConfirmDialogProps,
-  NotificationPayload
-} from "../types/index";
-
-export function useNotesList() {
-  const notesStore = useNotesStore();
-  const notes = computed(() => notesStore.notes);
-  const showConfirmDialog = ref(false);
-  const noteToDelete = ref<INote | null>(null);
-
-  function confirmDelete(note: INote) {
-    noteToDelete.value = note;
-    showConfirmDialog.value = true;
-  }
-
-  function handleConfirmDelete() {
-    if (noteToDelete.value) {
-      notesStore.deleteNote(noteToDelete.value.id);
-      noteToDelete.value = null;
-    }
-  }
-
-  function initializeNotes() {
-    notesStore.initializeFromStorage();
-  }
-
-  return {
-    notes,
-    showConfirmDialog,
-    noteToDelete,
-    confirmDelete,
-    handleConfirmDelete,
-    initializeNotes
-  };
-}
+import type { INote, ITodoItem, NotificationPayload } from "../types/index";
 
 export function useNoteEditor() {
   const route = useRoute();
@@ -214,94 +175,5 @@ export function useNoteEditor() {
     handleCancelConfirm,
     save,
     cancel
-  };
-}
-
-export function useTodoItems({
-  todos,
-  onUpdateTodos,
-  onAdd,
-  onRemove
-}: IUseTodoItemsProps) {
-  const localTodos = ref<ITodoItem[]>(todos);
-
-  watch(
-    () => todos,
-    (newTodos) => {
-      localTodos.value = newTodos;
-    },
-    { deep: true }
-  );
-
-  function createTodo(): ITodoItem {
-    return {
-      id: crypto.randomUUID(),
-      text: "",
-      completed: false
-    };
-  }
-
-  function addTodo() {
-    const newTodo = createTodo();
-    const newTodos = [...localTodos.value, newTodo];
-    localTodos.value = newTodos;
-    onUpdateTodos(newTodos);
-    onAdd?.();
-  }
-
-  function removeTodo(index: number) {
-    const newTodos = [...localTodos.value];
-    newTodos.splice(index, 1);
-    localTodos.value = newTodos;
-    onUpdateTodos(newTodos);
-    onRemove?.(index);
-  }
-
-  function updateTodo(index: number, updates: Partial<ITodoItem>) {
-    const newTodos = [...localTodos.value];
-    newTodos[index] = { ...newTodos[index], ...updates };
-    localTodos.value = newTodos;
-    onUpdateTodos(newTodos);
-  }
-
-  return {
-    todos: localTodos,
-    addTodo,
-    removeTodo,
-    updateTodo
-  };
-}
-
-export function useConfirmDialog({
-  modelValue,
-  onUpdateModelValue,
-  onConfirm
-}: IUseConfirmDialogProps) {
-  function closeDialog() {
-    onUpdateModelValue(false);
-  }
-
-  function confirm() {
-    onConfirm();
-    closeDialog();
-  }
-
-  const buttons: IConfirmDialogButton[] = [
-    {
-      text: "Cancel",
-      class: "px-4 py-2 text-gray-600 hover:text-gray-800",
-      onClick: closeDialog
-    },
-    {
-      text: "Confirm",
-      class: "px-4 py-2 bg-blue-500 text-white rounded hover:bg-red-600",
-      onClick: confirm
-    }
-  ];
-
-  return {
-    buttons,
-    confirm,
-    closeDialog
   };
 }

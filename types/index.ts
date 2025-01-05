@@ -23,6 +23,14 @@ export interface INote {
   updatedAt?: Date;
 }
 
+export interface IDialog {
+  visible: boolean;
+  title: string;
+  message: string;
+  onConfirm: () => void;
+  onCancel?: () => void;
+}
+
 export interface IButton {
   label: string;
   action: () => void;

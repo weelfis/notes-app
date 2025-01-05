@@ -4,8 +4,6 @@
 
 @layer utilities {
   .note-h {
-    height: 190px;
-    min-height: 190px;
-    max-height: 190px;
+    @apply h-[190px] min-h-[190px] max-h-[190px];
   }
 }

@@ -1,6 +1,6 @@
 import { watch } from "vue";
 import { useRoute } from "vue-router";
-import { useNotesStore } from "../stores/notes";
+import { useNotesStore } from "../store/useNotesStore";
 
 export function useRouteWatcher() {
   const route = useRoute();
@@ -8,7 +8,6 @@ export function useRouteWatcher() {
 
   const updateRouteState = () => {
     const isNewNote = route.path === "/notes/new";
-    const isNotesList = route.path === "/";
     notesStore.setNewNoteRoute(isNewNote);
   };
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useConfirmDialog } from "../use/useNotesHelper";
+import { useConfirmDialog } from "../composables/useConfirmDialog";
 
 interface IProps {
   modelValue: boolean;

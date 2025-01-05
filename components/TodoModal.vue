@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { useNotesStore } from "../stores/notes";
+import { useNotesStore } from "../store/useNotesStore";
 import TodoItem from "./TodoItem.vue";
 import type { ITodoItem, INote } from "../types/index";
 
@@ -88,17 +88,3 @@ const handleClickOutside = (event: MouseEvent) => {
     </div>
   </div>
 </template>
-
-<style scoped>
-.modal-content {
-  max-height: 80vh;
-  overflow-y: auto;
-  min-width: 320px;
-}
-
-@media (min-width: 640px) {
-  .modal-content {
-    min-width: 480px;
-  }
-}
-</style>

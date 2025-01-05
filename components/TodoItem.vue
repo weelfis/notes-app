@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { watch } from "vue";
-import { useTodoItems } from "../use/useNotesHelper";
+import { useTodoItems } from "../composables/useTodoItems";
 import type { ITodoItem } from "../types/index";
 
 interface IProps {

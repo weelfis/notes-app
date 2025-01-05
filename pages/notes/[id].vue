@@ -1,14 +1,46 @@
 <script setup lang="ts">
-import { onMounted, watch } from "vue";
-import { useNotesStore } from "../../stores/notes";
-import { useNoteEditor } from "../../use/useNotesHelper";
-import { useRouteWatcher } from "../../use/useRouteWatcher";
+import { onMounted, watch, computed } from "vue";
+import { useNotesStore } from "../../store/useNotesStore";
+import { useRouteWatcher } from "../../composables/useRouteWatcher";
+import { useUnsavedChangesGuard } from "../../composables/useUnsavedChangesGuard";
+import { useNoteEditor } from "../../composables/useNoteEditor";
 import TodoItem from "../../components/TodoItem.vue";
+import ConfirmDialog from "../../components/ConfirmDialog.vue";
+import type { IDialog } from "../../types";
 
 const notesStore = useNotesStore();
-const { save, note, isNew, dialogs, loadExistingNote, handleDeleteConfirm } =
-  useNoteEditor();
+const {
+  save,
+  note,
+  isNew,
+  dialogs: deleteDialogs,
+  loadExistingNote,
+  handleDeleteConfirm
+} = useNoteEditor();
 const { updateRouteState } = useRouteWatcher();
+const {
+  showUnsavedDialog,
+  handleConfirmNavigation,
+  handleCancelNavigation,
+  resetUnsavedChanges
+} = useUnsavedChangesGuard(note, isNew);
+
+const allDialogs = computed<IDialog[]>(() => [
+  ...deleteDialogs.value.map((dialog) => ({
+    visible: dialog.visible,
+    title: dialog.title,
+    message: dialog.message,
+    onConfirm: dialog.onConfirm
+  })),
+  {
+    visible: showUnsavedDialog.value,
+    title: "Unsaved Changes",
+    message:
+      "You have unsaved changes. Do you want to save them before leaving?",
+    onConfirm: handleConfirmNavigation,
+    onCancel: handleCancelNavigation
+  }
+]);
 
 onMounted(() => {
   notesStore.initializeFromStorage();
@@ -22,9 +54,10 @@ onMounted(() => {
   }
 });
 
-const saveNote = () => {
+const saveNote = async () => {
+  resetUnsavedChanges();
   notesStore.setCurrentNote(note.value);
-  save();
+  await save();
 };
 
 watch(
@@ -68,12 +101,13 @@ watch(
     </div>
 
     <ConfirmDialog
-      v-for="(dialog, index) in dialogs"
+      v-for="(dialog, index) in allDialogs"
       :key="index"
-      v-model="dialog.visible"
+      :modelValue="dialog.visible"
       :title="dialog.title"
       :message="dialog.message"
-      @confirm="handleDeleteConfirm"
+      @confirm="dialog.onConfirm"
+      @update:modelValue="dialog.onCancel?.() ?? void 0"
     />
   </div>
 </template>
